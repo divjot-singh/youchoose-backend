@@ -1,0 +1,39 @@
+*{
+    box-sizing: border-box;
+}
+p{
+    margin: 0;
+}
+
+.container{
+    padding: 16px;
+    margin: 0 auto;
+    background: maroon;
+    height: calc(100vh - 63px);
+}
+
+input{
+    padding: 8px 12px;
+    background: white;
+    box-shadow: none;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+button{
+    padding: 8px 12px;
+    background: rgb(54, 2, 2);
+    color: white;
+    box-shadow: none;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    line-height: 20px;
+    cursor: pointer;
+    &:disabled{
+        background-color: grey;
+        cursor: auto;
+    }
+}
