@@ -1,0 +1,54 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importStar(require("express"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const body_parser_1 = __importDefault(require("body-parser"));
+const cors_1 = __importDefault(require("cors"));
+const api_endpoints_1 = __importDefault(require("./utils/api_endpoints"));
+const registerUserHandler_1 = __importDefault(require("./handlers/registerUserHandler"));
+const firebaseService_1 = __importDefault(require("./services/firebaseService"));
+const fetchClubsHandler_1 = __importDefault(require("./handlers/fetchClubsHandler"));
+const router = (0, express_1.Router)();
+const app = (0, express_1.default)();
+const fbService = new firebaseService_1.default();
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+app.use((0, cors_1.default)(corsOptions));
+dotenv_1.default.config();
+app.use(body_parser_1.default.urlencoded({ extended: false }));
+app.use(body_parser_1.default.json());
+app.use('/', router);
+router.post(api_endpoints_1.default.register, registerUserHandler_1.default);
+router.get(api_endpoints_1.default.fetchClubs, fetchClubsHandler_1.default);
+app.listen(process.env.SERVER_PORT, () => {
+    console.log(`Server started on port ${process.env.SERVER_PORT}`);
+});
+//# sourceMappingURL=index.js.map
