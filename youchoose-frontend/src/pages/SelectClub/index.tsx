@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/header'
 import Club, { instanceOfClub } from '../../entities/club'
-import { Error } from '../../entities/error'
+import { Error as AppError } from '../../entities/error'
 import NetworkService from '../../services/networkService'
 import { API_ENDPOINTS } from '../../utils/apiEndpoints'
 import SelectSearch from 'react-select-search';
@@ -14,16 +14,24 @@ import { useCommonComponents } from '../../providers/commonComponentsProvider'
 import {  useNavigate } from 'react-router-dom'
 import { RoutesKeys } from '../../utils/routes'
 import { SnackbarTypes } from '../../components/snackbar'
+import { useAuth } from '../../providers/userProvider'
+import Song, { instanceOfSong } from '../../entities/song'
+import { useAddedSongs } from '../../providers/addedSongsProvider'
+import { UserType } from '../../entities/user'
 
 
 const SelectClub = () => {
     const [clubs, setClubs] = useState<Club[]>([])
     const {showLoader,hideLoader, showSnackbar} = useCommonComponents()
     const navigate = useNavigate()
+    let isFetchingClubs = false
     const fetchClubs = async () => {
+        console.log(isFetchingClubs)
+        if(isFetchingClubs) return
         showLoader(null)
+        isFetchingClubs = true
         try{
-            const clubsResponse: Club[] | null | Error = await NetworkService.get({url:API_ENDPOINTS.fetchClubs})
+            const clubsResponse: Club[] | null | AppError = await NetworkService.get({url:API_ENDPOINTS.fetchClubs})
             hideLoader()
             if(Array.isArray(clubsResponse) && instanceOfClub(clubsResponse[0])){
                 setClubs(clubsResponse)
@@ -34,17 +42,28 @@ const SelectClub = () => {
                 })
             }
         } catch(err){
+            hideLoader()
             console.error(err)
             showSnackbar({
                 children:<span>Cound not fetch clubs</span>,
                 type:SnackbarTypes.ERROR
             })
+            
         }
     }
     const {club, setClub} = useClub()
+    const {user} = useAuth()
+    const {updateAddedSongs} = useClub()
+    const { updateSongs } = useAddedSongs()
     useEffect(() => {
         fetchClubs()
     },[])
+    useEffect(() => {
+        if(user && user.user_type === UserType.DJ && user.club){
+            setClub(user.club)
+            navigate(RoutesKeys.CLUB_SONG_LIST)
+        }
+    },[user])
     const options = clubs.map((club) => {
         return {
             name:club.clubName,
@@ -55,17 +74,68 @@ const SelectClub = () => {
         let clubId = Array.isArray(value) ? value[0].toString() : value.toString()
         let selectedClub= clubs.find((club) => club.clubId === clubId)
         if(selectedClub){
-            
             setClub(selectedClub)
+        }
+    }
+    const fetchUserSuggestedSongs = async () => {
+        if(!user || !user.uid) return
+        const data = await NetworkService.get({
+            url: API_ENDPOINTS.userSuggestedSong,
+            data:{
+                clubId:club?.clubId,
+                userId:user.uid
+            }
+        })
+        if(Array.isArray(data)){
+            if(instanceOfSong(data[0])) updateAddedSongs(data)
+        } else {
+            showSnackbar({
+                children:<span>Cound not fetch user suggested songs</span>,
+                type:SnackbarTypes.ERROR
+            })
+            return Promise.reject('Could not fetch user suggested songs')
+        }
+    }
+    const fetchClubSongs = async () => {
+        const data = await NetworkService.get({
+            url: API_ENDPOINTS.clubSongs,
+            data:{
+                clubId:club?.clubId,
+            }
+        })
+        if(Array.isArray(data)){
+            if(instanceOfSong(data[0])) updateSongs(data)
+        } else {
+            showSnackbar({
+                children:<span>Cound not fetch club songs</span>,
+                type:SnackbarTypes.ERROR
+            })
+            return Promise.reject('Cound not fetch club songs')
+        }
+    }
+    const onNextClick = async() => {
+        showLoader(null)
+        try{
+            await fetchUserSuggestedSongs()
+            await fetchClubSongs()
+            hideLoader()
+            navigate(RoutesKeys.SELECT_SONGS)
+        } catch (err){
+            hideLoader()
+            console.error(err)
+            showSnackbar({
+                children:<span>{typeof err === 'string' ? err : 'Something went wrong'}</span>,
+                type:SnackbarTypes.ERROR
+            })
         }
     }
     return (
         <>
             <Header pageName='Select Club' />
-            <div className='clubs-container container'>
+            <div className='clubs-container container content'>
                 <p className='page-header'>Choose your club</p>
                 <SelectSearch options={options} placeholder="Choose your club" search={true} value={club?.clubId} closeOnSelect={true} onChange={handleChange} filterOptions={fuzzySearchWrapper} />
-                <button disabled={!club} className='select-button' onClick={() => navigate(RoutesKeys.SELECT_SONGS)}>Select</button>
+                <button disabled={!club} className='select-button' onClick={onNextClick}>Select</button>
             </div>
         </>
     )

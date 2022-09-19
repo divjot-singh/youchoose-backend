@@ -5,16 +5,28 @@ import './index.scss'
 import { useAuth, UserContextValue } from '../../providers/userProvider'
 import Header from '../../components/header'
 import { RoutesKeys } from '../../utils/routes'
+import { UserType } from '../../entities/user'
+import { useClub } from '../../providers/clubProvider'
+import { useLikedSongs } from '../../providers/likedSongsProvider'
 
 
 const Login = () => {
     const {authenticate, user}:UserContextValue = useAuth()
     const location = useLocation(), navigate = useNavigate()
+    const {initialiseLikedSongs} = useLikedSongs()
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
+    const {setClub} = useClub()
     const redirectToRouteIfAny = () => {
         const state:any = location.state || {}
-        if(state['from']){
+        if(user?.user_type === UserType.USER){
+            initialiseLikedSongs()
+            navigate(RoutesKeys.SELECT_CLUB)
+        }
+        if(user?.user_type === UserType.DJ && user.club){
+            setClub(user.club)
+            navigate(RoutesKeys.CLUB_SONG_LIST)
+        }else if(state['from']){
             navigate(state['from'])
         } else{
             navigate(RoutesKeys.ROOT)
@@ -48,7 +60,7 @@ const Login = () => {
     return (
         <>
             <Header pageName='Login' />
-            <div className='login-container container'>
+            <div className='login-container container content'>
                 <form className='signin-form' onSubmit={handleSubmit}>
                     <label className='label' htmlFor='email'>Email</label>
                     <input type='email' placeholder='Email' name='email' id='email' value={email} onChange={handleEmailChange} required />

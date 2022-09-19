@@ -24,12 +24,25 @@ const RegisterUserHandler = (req, res, next) => __awaiter(void 0, void 0, void 0
             if (typeof token === 'string') {
                 tableUser.token = token;
             }
-            const response = yield firebaseService_1.default.addUserToTable(tableUser);
-            if (!response) {
-                res.status(200).send({ success: true, data: tableUser });
+            const existingUser = yield firebaseService_1.default.checkIfUserExists(tableUser);
+            if ((0, user_1.instanceOfUser)(existingUser)) {
+                res.status(200).send({ success: true, data: existingUser });
             }
             else {
-                res.status(200).send((0, createError_1.CreateError)(response));
+                const authorisedUser = yield firebaseService_1.default.checkIfUserIsAuthorised(tableUser);
+                if ((0, user_1.instanceOfAuthorisedUser)(authorisedUser)) {
+                    tableUser.user_type = authorisedUser.user_type;
+                    if (authorisedUser === null || authorisedUser === void 0 ? void 0 : authorisedUser.club) {
+                        tableUser.club = authorisedUser.club;
+                    }
+                }
+                const response = yield firebaseService_1.default.addUserToTable(tableUser);
+                if (!response) {
+                    res.status(200).send({ success: true, data: tableUser });
+                }
+                else {
+                    res.status(200).send((0, createError_1.CreateError)(response));
+                }
             }
         }
     }

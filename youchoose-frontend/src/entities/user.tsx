@@ -1,3 +1,5 @@
+import Club from "./club";
+
 export enum UserType{
     USER='user',
     MODERATOR='moderator',
@@ -11,6 +13,7 @@ export default interface User{
     uid:string;
     user_type:UserType
     token:string;
+    club?:Club;
 }
 
 export function instanceOfUser(data: any): data is User {

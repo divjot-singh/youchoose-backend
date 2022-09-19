@@ -18,9 +18,10 @@ let _getAxiosInstance = ({isAbsoluteUrl = false, isYoutubeApiUrl = false}) => {
     timeout: 30000,
     headers: headers,
     params:isYoutubeApiUrl ? {
-      part:'snippet',
+      part:'id,snippet',
       maxResults:50,
-      key:process.env.REACT_APP_YOUTUBE_API_KEY
+      key:process.env.REACT_APP_YOUTUBE_API_KEY,
+      order:'rating'
     } : undefined,
     validateStatus: function (status) {
       return status >= 200 && status < 400
@@ -83,7 +84,7 @@ let _makeRequest = async ({url, type, data, isAbsoluteUrl, isYoutubeApiUrl}:Make
       } else if (response.data.success) {
         return Promise.resolve(response.data.data)
       } else {
-        return _handleError(response.data.errors)
+        return _handleError(response.data.error)
       }
     }
 

@@ -13,7 +13,7 @@ const Register = () => {
     
     const {authenticate, user}:UserContextValue = useAuth()
     const redirectToRouteIfAny = () => {
-        navigate(RoutesKeys.ROOT)
+        navigate(RoutesKeys.SELECT_CLUB)
     }
     useEffect(() => {
         if(user){
@@ -41,7 +41,7 @@ const Register = () => {
     return (
         <>
         <Header pageName='Register' />
-        <div className='login-container container'>
+        <div className='login-container container content'>
             <form className='signin-form' onSubmit={handleSubmit}>
                 <label className='label' htmlFor='name'>Username</label>
                 <input type='text' placeholder='Name' name='name' id='name' value={username} onChange={handleNameChange} required />

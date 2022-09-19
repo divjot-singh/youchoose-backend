@@ -18,6 +18,8 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
+console.log(firebaseConfig)
+
 export const InitialiseFirebaseApp = () => {
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
@@ -65,7 +67,7 @@ export const GetCurrentUser = async (): Promise<User | null | Error> => {
         if(token){
             const result: UserCredential | null = await signInWithCustomToken(auth, token)
             if(result){
-                const user = getUser(result.user, UserType.MODERATOR, token || '');
+                const user = getUser(result.user, UserType.USER, token || '');
                 return user;
             }
             return null;
@@ -84,7 +86,7 @@ export const SignUpWithGoogle = async (): Promise<User | null | Error> => {
             if(result){
                 const credential: OAuthCredential | null = GoogleAuthProvider.credentialFromResult(result);
                 const token = credential?.accessToken;
-                const user = getUser(result.user, UserType.MODERATOR, token || '');
+                const user = getUser(result.user, UserType.USER, token || '');
                 SaveUserToLocalStorage(user);
                 return user;
             }
@@ -105,7 +107,7 @@ export const Register = async (email?:string, password?:string, username?:string
             console.log(idToken)
             const credential: OAuthCredential | null = GoogleAuthProvider.credentialFromResult(result);
             const token = credential?.accessToken;
-            const user = getUser(result.user, UserType.MODERATOR, token || '');
+            const user = getUser(result.user, UserType.USER, token || '');
             return user;
         }
         return null
@@ -122,7 +124,7 @@ export const LoginWithEmail = async (email?:string, password?:string): Promise<U
         const result: UserCredential | null = await signInWithEmailAndPassword(auth, email, password)
         if(result){
             const idToken:IdTokenResult = await getIdTokenResult(result.user)
-            const user = getUser(result.user, UserType.MODERATOR, idToken.token || '');
+            const user = getUser(result.user, UserType.USER, idToken.token || '');
             return user;
         }
         return null

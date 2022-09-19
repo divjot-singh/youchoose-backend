@@ -7,6 +7,8 @@ import { InitialiseFirebaseApp } from './services/firebaseService';
 import { UserContextWrapper } from './providers/userProvider';
 import { CommonComponentsProvider } from './providers/commonComponentsProvider';
 import { ClubProvider } from './providers/clubProvider';
+import { AddedSongsProvider } from './providers/addedSongsProvider';
+import { LikedSongsProvider } from './providers/likedSongsProvider';
 
 
 function App() {
@@ -19,9 +21,13 @@ function App() {
   return (
     <CommonComponentsProvider>
       <UserContextWrapper isAppInitialised={appInitialised}>
-        <ClubProvider>
-          <AppRouter />
-        </ClubProvider>
+        <LikedSongsProvider>
+          <ClubProvider>
+            <AddedSongsProvider>
+              <AppRouter />
+            </AddedSongsProvider>
+          </ClubProvider>
+        </LikedSongsProvider>
       </UserContextWrapper>
     </CommonComponentsProvider>
   );

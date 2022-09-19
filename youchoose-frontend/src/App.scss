@@ -8,8 +8,12 @@ p{
 .container{
     padding: 16px;
     margin: 0 auto;
-    background: maroon;
-    height: calc(100vh - 63px);
+    height: calc(100vh - 140px);
+}
+
+.content{
+    margin: 0 auto;
+    max-width: 800px;
 }
 
 input{
@@ -36,4 +40,28 @@ button{
         background-color: grey;
         cursor: auto;
     }
+}
+
+body{
+    background: url('./assets/bg.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: cover;
+    backdrop-filter: brightness(0.5);
+}
+input{
+    color: #ffffff;
+    background-color: #000000;
+    &::placeholder {
+        color: #ffffff;
+        opacity: 1; 
+      }
+      
+      &:-ms-input-placeholder { 
+        color: #ffffff;
+      }
+      
+      &::-ms-input-placeholder {
+        color: #ffffff;
+      }
 }

@@ -1,0 +1,32 @@
+.floating-action-button{
+    position: fixed;
+    bottom: 50px;
+    background: #f44336;
+    padding: 10px 20px;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    border-radius: 10px;
+    &.position-left{
+        left:20px;
+    }
+    &.position-right{
+        right:20px;
+    }
+    &.position-center{
+        left:50%;
+        transform: translateX(-50%);
+    }
+}
+
+@media screen and (min-width:800px) {
+    .floating-action-button{
+        &.position-left{
+            left:calc(50% - 380px);
+        }
+        &.position-right{
+            right:calc(50% - 380px);
+        }
+    }
+}

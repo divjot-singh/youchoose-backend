@@ -24,6 +24,23 @@
     }
     .select-search{
         width: 400px;
+        max-width: 100%;
+        input{
+            background-color: #19183c;
+            color: #ffffff;
+            &::placeholder {
+                color: #ffffff;
+                opacity: 1; 
+              }
+              
+              &:-ms-input-placeholder { 
+                color: #ffffff;
+              }
+              
+              &::-ms-input-placeholder {
+                color: #ffffff;
+              }
+        }
     }
     input{
         width: 100%;
