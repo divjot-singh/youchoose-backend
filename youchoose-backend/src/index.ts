@@ -3,9 +3,9 @@ import dotenv from 'dotenv'
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import API_ENDPOINTS from './utils/api_endpoints';
-import RegisterUserHandler from './handlers/registerUserHandler';
+import RegisterUserHandler, { AddModerator, DeleteModerator, GetModerators } from './handlers/registerUserHandler';
 import FirebaseService from './services/firebaseService';
-import FetchClubsHandler from './handlers/fetchClubsHandler';
+import {AddNewClub, DeleteClubHandler, FetchClubsHandler, UpdateClubHandler} from './handlers/fetchClubsHandler';
 import {AddSongToList, AddSuggestedSongsHandler, FetchClubSongs, FetchSuggestedSongsList, FetchUserSuggestedSongs, RemoveSongFromList, RemoveSongFromSuggestedList, RemoveUserSuggestedSong} from './handlers/suggestedSongsHandler';
 import { FetchLikedSongs, LikeUnlikeSong } from './handlers/likeSongHandler';
 
@@ -38,6 +38,12 @@ router.post(API_ENDPOINTS.addSongToList,AddSongToList)
 router.post(API_ENDPOINTS.removeSongFromList,RemoveSongFromList)
 router.post(API_ENDPOINTS.likeUnlikeSong,LikeUnlikeSong)
 router.get(API_ENDPOINTS.fetchLikedSongs, FetchLikedSongs)
+router.get(API_ENDPOINTS.getModerators, GetModerators)
+router.post(API_ENDPOINTS.updateClub, UpdateClubHandler)
+router.post(API_ENDPOINTS.deleteClub, DeleteClubHandler)
+router.post(API_ENDPOINTS.addModerator, AddModerator)
+router.post(API_ENDPOINTS.addClub, AddNewClub)
+router.post(API_ENDPOINTS.deleteMod, DeleteModerator)
 
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Server started on port ${process.env.SERVER_PORT}`)

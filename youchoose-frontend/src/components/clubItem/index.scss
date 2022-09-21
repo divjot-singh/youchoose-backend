@@ -1,0 +1,60 @@
+.club-item{
+    width: 100%;
+    background-color: #ffffff;
+    margin-bottom: 20px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    .club-info{
+        flex: 1 1 calc(100% - 30px);
+        .club-info-item{
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            label{
+                font-weight: bold;
+                margin-right: 8px;
+            }
+            input{
+                width: 100%;
+            }
+            .club-info-value{
+                padding: 8px 12px;
+                font-size: 14px;
+                line-height: 20px;
+            }
+        }
+        .club-info-ctas{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }  
+    .icons{
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+}
+
+.deletion-content{
+    p{
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1.5;
+    }
+    .ctas{
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        button{
+            min-width: 70px;
+        }
+    }
+}

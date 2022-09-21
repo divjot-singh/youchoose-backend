@@ -1,0 +1,52 @@
+.mod-tile{
+    background: #f5f2ec;
+    padding: 10px 16px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 1px 3px 4px #9d9696;
+    margin-bottom: 20px;
+    .content{
+        text-align: left;
+        flex: 1 1 calc(100% - 25px);
+        font-size: 16px;
+        font-weight: bold;
+        line-height: 24px;
+        word-break: break-word;
+        span{
+            margin-left: 5px;
+        }
+    }
+    .delete-icon{
+        flex: 0 0 20px;
+        cursor: pointer;
+    }
+    &.me{
+        border: 1px solid red;
+    }
+}
+
+.add-mod-form-container{
+    width: 400px;
+    max-width: 100%;
+    .add-club-form{
+        label, input{
+            display: block;
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        label{
+            font-weight: bold;
+        }
+        .cta-container{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            button{
+                min-width: 80px;
+            }
+        }
+    }
+    
+}

@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DeleteModerator = exports.GetModerators = exports.AddModerator = void 0;
 const user_1 = require("../entities/user");
 const firebaseService_1 = __importDefault(require("../services/firebaseService"));
 const createError_1 = require("../utils/createError");
@@ -50,5 +51,52 @@ const RegisterUserHandler = (req, res, next) => __awaiter(void 0, void 0, void 0
         res.status(200).send((0, createError_1.CreateError)(err));
     }
 });
+const AddModerator = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.body;
+        const returnVal = yield firebaseService_1.default.addModerator(data.email);
+        if (!returnVal) {
+            res.status(200).send({ success: true });
+        }
+        else {
+            res.status(200).send({ success: false, error: returnVal });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.AddModerator = AddModerator;
+const GetModerators = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const moderators = yield firebaseService_1.default.getModerators();
+        if (Array.isArray(moderators)) {
+            res.status(200).send({ success: true, data: moderators });
+        }
+        else {
+            res.status(200).send({ success: false, error: moderators });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.GetModerators = GetModerators;
+const DeleteModerator = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.body;
+        const returnVal = yield firebaseService_1.default.deleteModerator(data.email);
+        if (!returnVal) {
+            res.status(200).send({ success: true });
+        }
+        else {
+            res.status(200).send({ success: false, error: returnVal });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.DeleteModerator = DeleteModerator;
 exports.default = RegisterUserHandler;
 //# sourceMappingURL=registerUserHandler.js.map

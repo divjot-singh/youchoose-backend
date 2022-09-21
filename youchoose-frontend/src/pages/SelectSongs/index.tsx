@@ -13,12 +13,17 @@ import { FaSearch } from 'react-icons/fa'
 import FloatingActionButton, { FabPosition } from '../../components/floating_action_button'
 import { useNavigate } from 'react-router-dom'
 import { RoutesKeys } from '../../utils/routes'
+import { useAuth } from '../../providers/userProvider'
+import { UserType } from '../../entities/user'
+import { useClub } from '../../providers/clubProvider'
 
 
 const SelectSongs = () => {
     const [query, setQuery] = useState<string>('')
     const debouncedValue = useDebounce<string>(query, 500)
     const [songs, setSongs] = useState<Song[]>([])
+    const {user} = useAuth()
+    const {club, setClub} = useClub()
     const navigate = useNavigate()
     const {showLoader,hideLoader, showSnackbar} = useCommonComponents()
     const fetchSongs =  async (text:string) => {
@@ -47,6 +52,17 @@ const SelectSongs = () => {
         }
     },[debouncedValue])
 
+    useEffect(() => {
+        if(!user){
+            if(!club){
+                navigate(RoutesKeys.SELECT_CLUB)
+            }
+        } else if(user.user_type === UserType.DJ && user.club){
+            setClub(user.club)
+            navigate(RoutesKeys.CLUB_SONG_LIST)
+        }
+    },[user,club])
+
     const getSongsResults = () => {
         if(debouncedValue.length && songs.length){
             return songs.map((songItem) => <SongItem song={songItem} key={songItem.videoId} />)
@@ -62,7 +78,7 @@ const SelectSongs = () => {
                 <div className='song-list'>{getSongsResults()}</div>
             </div>
             <FloatingActionButton position={FabPosition.right} onClick={() => navigate(RoutesKeys.CLUB_SONG_LIST)}>SongsList</FloatingActionButton>
-            <FloatingActionButton position={FabPosition.left} onClick={() => navigate(RoutesKeys.MY_SONGS)}>My songs</FloatingActionButton>
+            { user && user.user_type === UserType.USER ? <FloatingActionButton position={FabPosition.left} onClick={() => navigate(RoutesKeys.MY_SONGS)}>My songs</FloatingActionButton> : null}        
         </>
     )
 }

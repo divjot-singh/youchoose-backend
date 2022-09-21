@@ -34,8 +34,8 @@ let _getAxiosInstance = ({isAbsoluteUrl = false, isYoutubeApiUrl = false}) => {
     },
     error => {
       if (error && error.response && error.response.status === 401) {
-        LocalStorageMethods.clear()
-        window.location.reload()
+        //LocalStorageMethods.clear()
+        //window.location.reload()
       } else {
         return Promise.reject(error)
         // todo kr - form some model for error

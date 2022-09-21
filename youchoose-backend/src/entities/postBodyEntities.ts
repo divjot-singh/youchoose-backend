@@ -1,3 +1,4 @@
+import Club from "./clubs";
 import Song from "./song";
 
 export interface AddSuggestedSongsHandlerBody{
@@ -42,4 +43,23 @@ export interface LikeSongBody{
 
 export interface FetchLikedSongsBody{
     userId:string;
+}
+
+export interface ClubHandlerBody{
+    clubId:string;
+    email:string;
+}
+
+export interface UpdateClubHandlerBody{
+    club:Club;
+    oldEmail:string;
+}
+
+export interface AddClubHandlerBody{
+    clubName:string;
+    email:string;
+}
+
+export interface AddModeratorHandlerBody{
+    email:string;
 }

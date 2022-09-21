@@ -1,6 +1,7 @@
 export default interface Club{
     clubId:string;
     clubName:string
+    email:string;
 }
 
 export function instanceOfClub(data: any): data is Club {
@@ -10,10 +11,11 @@ export function instanceOfClub(data: any): data is Club {
 
 export function getClubFromMap(data:any): Club{
     if(!data) return
-    const {clubId = '', clubName = ''} = data || {}
+    const {clubId = '', clubName = '', email = ''} = data || {}
     const club:Club = {
         clubId,
-        clubName
+        clubName,
+        email
     }
     return club
 }

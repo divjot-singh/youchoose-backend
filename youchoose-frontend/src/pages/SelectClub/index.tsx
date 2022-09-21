@@ -26,7 +26,6 @@ const SelectClub = () => {
     const navigate = useNavigate()
     let isFetchingClubs = false
     const fetchClubs = async () => {
-        console.log(isFetchingClubs)
         if(isFetchingClubs) return
         showLoader(null)
         isFetchingClubs = true

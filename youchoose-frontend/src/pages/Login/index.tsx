@@ -5,7 +5,7 @@ import './index.scss'
 import { useAuth, UserContextValue } from '../../providers/userProvider'
 import Header from '../../components/header'
 import { RoutesKeys } from '../../utils/routes'
-import { UserType } from '../../entities/user'
+import { instanceOfUser, UserType } from '../../entities/user'
 import { useClub } from '../../providers/clubProvider'
 import { useLikedSongs } from '../../providers/likedSongsProvider'
 
@@ -22,14 +22,17 @@ const Login = () => {
         if(user?.user_type === UserType.USER){
             initialiseLikedSongs()
             navigate(RoutesKeys.SELECT_CLUB)
-        }
-        if(user?.user_type === UserType.DJ && user.club){
+        } else if(user?.user_type === UserType.DJ && user.club){
             setClub(user.club)
             navigate(RoutesKeys.CLUB_SONG_LIST)
-        }else if(state['from']){
+        }
+        else if(user?.user_type === UserType.MODERATOR) {
+            navigate(RoutesKeys.CLUBS_LIST)
+        }
+        else if(state['from'] && state['from'] !== '/'){
             navigate(state['from'])
         } else{
-            navigate(RoutesKeys.ROOT)
+            navigate(RoutesKeys.ERROR_PAGE)
         }
     }
     useEffect(() => {

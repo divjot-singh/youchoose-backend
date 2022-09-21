@@ -1,6 +1,7 @@
 export default interface Club{
     clubId:string;
-    clubName:string
+    clubName:string;
+    email:string;
 }
 
 export function instanceOfClub(data: any): data is Club {

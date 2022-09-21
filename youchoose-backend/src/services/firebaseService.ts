@@ -92,10 +92,8 @@ class FirebaseService{
                     email: userData.email,
                     club:getClubFromMap(userData.club)
                 }
-                console.log(authorisedUser)
                 return authorisedUser
             }
-            console.log('returning null')
             return null;
         } catch(err){
             return CreateError(err)
@@ -194,9 +192,9 @@ class FirebaseService{
         try{
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get()
             if(data.docs.length){
-                data.docs.forEach(async(doc) => {
+                for(const doc of data.docs){
                     await doc.ref.delete()
-                })
+                }
             }
         } catch(err){
             return CreateError(err)
@@ -213,13 +211,13 @@ class FirebaseService{
         try{
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> =  await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get()
             if(data.docs.length){
-                data.docs.forEach(async (doc) => {
+                for(const doc of data.docs){
                     const docData = doc.data()
                     const song = docData.song
                     if(song && song.videoId === songId){
                         await doc.ref.delete()
                     }
-                })
+                }
             }
         } catch(err){
             return CreateError(err)
@@ -250,10 +248,134 @@ class FirebaseService{
                 const data = entry.data()
                 return {
                     clubId:entry.id,
-                    clubName:data.name
+                    clubName:data.name,
+                    email:data.email || ''
                 } as Club
             })
            }
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async deleteClub(clubId:string, email:string):Promise<void | Error>{
+        try{
+            await FirebaseService.db.collection(Tables.clubs).doc(clubId).delete()
+            const users:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.user).where("email","==", email).get()
+            for(const user of users.docs){
+                await user.ref.delete()
+            }
+            const authorisedUsers:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where("email","==", email).get()
+            for(const authUser of authorisedUsers.docs){
+                await authUser.ref.delete()
+            }
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async addAuthorisedUser(club:Club):Promise<void | Error>{
+        try{
+            await FirebaseService.db.collection(Tables.authorised_user).add({
+                club:{
+                    clubId:club.clubId,
+                    clubName:club.clubName,
+                    email:club.email
+                },
+                email:club.email,
+                user_type:"dj"
+            })
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async updateClub(club:Club, oldEmail:string):Promise<Club | Error>{
+        try{
+            await FirebaseService.db.collection(Tables.clubs).doc(club.clubId).update({
+                name:club.clubName,
+                email:club.email
+            })
+            if(club.email !== oldEmail){
+                if(oldEmail.length){
+                    const users:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.user).where("email","==", oldEmail).get()
+                    for(const user of users.docs){
+                        await user.ref.update({
+                            user_type:'user'
+                        })
+                    }
+                    const authorisedUsers:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where("email","==", oldEmail).get()
+                    for(const authUser of authorisedUsers.docs){
+                        await authUser.ref.update({
+                            email:club.email
+                        })
+                    }
+                } else{
+                    const users:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.user).where("email","==", club.email).get()
+                    if(users.docs.length){
+                        for(const user of users.docs){
+                            await user.ref.update({
+                                club,
+                                user_type:'dj'
+                            })
+                        }
+                    } else{
+                        await FirebaseService.addAuthorisedUser(club)
+                    }
+                }
+            }
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async addClub(clubName:string, email:string):Promise<Club | Error>{
+        try{
+            const data:FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.clubs).add({
+                name:clubName,
+                email
+            })
+            const club:Club = {
+                clubId:data.id,
+                clubName,
+                email
+            }
+            await FirebaseService.addAuthorisedUser(club)
+            return club;
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async addModerator(email:string):Promise<void|Error>{
+        try{
+            await FirebaseService.db.collection(Tables.authorised_user).add({
+                email,
+                user_type:'moderator'
+            })
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async getModerators():Promise<string[]|Error>{
+        try{
+            const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where("user_type","==", "moderator").get()
+            const users = data.docs.map((user) => {
+                const userData = user.data()
+                return userData.email || ''
+            })
+            return users
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async deleteModerator(email:string):Promise<void | Error>{
+        try{
+            const authorisedUser:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where("email","==", email).get()
+            for(const doc of authorisedUser.docs){
+                await doc.ref.delete()
+            }
+            const user:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.user).where("email","==", email).get()
+            for(const doc of user.docs){
+                await doc.ref.update({
+                    user_type:"user"
+                })
+            }
         } catch(err){
             return CreateError(err)
         }

@@ -1,9 +1,12 @@
 import React from 'react'
 import { Route, BrowserRouter as Router, Routes, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { UserType } from './entities/user';
+import ClubsList from './pages/ClubsList';
 import ClubSongsList from './pages/ClubSongsList';
+import ErrorPage from './pages/ErrorPage';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import ModeratorsList from './pages/ModeratorsList';
 import MySongs from './pages/MySongs';
 import Register from './pages/Register';
 import SelectClub from './pages/SelectClub';
@@ -16,6 +19,12 @@ const DjProtectedRoute = (props:any) => {
     const {user} = useAuth()
     const location = useLocation()
     return user && user.user_type === UserType.DJ ? <Outlet /> : <Navigate to={RoutesKeys.LOGIN} state={{from:location.pathname}} />
+}
+
+const ModeratorProtectedRoute = (props:any) => {
+    const {user} = useAuth()
+    const location = useLocation()
+    return user && user.user_type === UserType.MODERATOR ? <Outlet /> : <Navigate to={RoutesKeys.LOGIN} state={{from:location.pathname}} />
 }
 
 const UserProtectedRoute = (props:any) => {
@@ -34,13 +43,18 @@ const AppRouter = () => {
             </Route>
             <Route path={RoutesKeys.ROOT} element={<UserProtectedRoute />}>
                 <Route path={RoutesKeys.MY_SONGS} element={<MySongs />} />
-                <Route path={RoutesKeys.SELECT_CLUB} element={<SelectClub />} />
-                <Route path={RoutesKeys.SELECT_SONGS} element={<SelectSongs />} />
+            </Route>
+            <Route path={RoutesKeys.ROOT} element={<ModeratorProtectedRoute />}>
+                <Route path={RoutesKeys.CLUBS_LIST} element={<ClubsList />} />
+                <Route path={RoutesKeys.MODERATORS_LIST} element={<ModeratorsList />} />
             </Route>
             <Route path={RoutesKeys.LOGIN} element={<Login />} />
             <Route path={RoutesKeys.REGISTER} element={<Register />} />
             <Route path={RoutesKeys.CLUB_SONG_LIST} element={<ClubSongsList />} />
-            <Route path="*" element={<Navigate to={RoutesKeys.ROOT} replace />} />
+            <Route path={RoutesKeys.SELECT_CLUB} element={<SelectClub />} />
+            <Route path={RoutesKeys.SELECT_SONGS} element={<SelectSongs />} />
+            <Route path={RoutesKeys.ERROR_PAGE} element={<ErrorPage />} />
+            <Route path="*" element={<Navigate to={RoutesKeys.ERROR_PAGE} replace />} />
         </Routes>
     </Router>
   )

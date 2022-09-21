@@ -120,10 +120,8 @@ class FirebaseService {
                         email: userData.email,
                         club: (0, clubs_1.getClubFromMap)(userData.club)
                     };
-                    console.log(authorisedUser);
                     return authorisedUser;
                 }
-                console.log('returning null');
                 return null;
             }
             catch (err) {
@@ -242,9 +240,9 @@ class FirebaseService {
             try {
                 const data = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get();
                 if (data.docs.length) {
-                    data.docs.forEach((doc) => __awaiter(this, void 0, void 0, function* () {
+                    for (const doc of data.docs) {
                         yield doc.ref.delete();
-                    }));
+                    }
                 }
             }
             catch (err) {
@@ -267,13 +265,13 @@ class FirebaseService {
             try {
                 const data = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).get();
                 if (data.docs.length) {
-                    data.docs.forEach((doc) => __awaiter(this, void 0, void 0, function* () {
+                    for (const doc of data.docs) {
                         const docData = doc.data();
                         const song = docData.song;
                         if (song && song.videoId === songId) {
                             yield doc.ref.delete();
                         }
-                    }));
+                    }
                 }
             }
             catch (err) {
@@ -314,8 +312,155 @@ class FirebaseService {
                         const data = entry.data();
                         return {
                             clubId: entry.id,
-                            clubName: data.name
+                            clubName: data.name,
+                            email: data.email || ''
                         };
+                    });
+                }
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static deleteClub(clubId, email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield FirebaseService.db.collection(tableEntities_1.Tables.clubs).doc(clubId).delete();
+                const users = yield FirebaseService.db.collection(tableEntities_1.Tables.user).where("email", "==", email).get();
+                for (const user of users.docs) {
+                    yield user.ref.delete();
+                }
+                const authorisedUsers = yield FirebaseService.db.collection(tableEntities_1.Tables.authorised_user).where("email", "==", email).get();
+                for (const authUser of authorisedUsers.docs) {
+                    yield authUser.ref.delete();
+                }
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static addAuthorisedUser(club) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield FirebaseService.db.collection(tableEntities_1.Tables.authorised_user).add({
+                    club: {
+                        clubId: club.clubId,
+                        clubName: club.clubName,
+                        email: club.email
+                    },
+                    email: club.email,
+                    user_type: "dj"
+                });
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static updateClub(club, oldEmail) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield FirebaseService.db.collection(tableEntities_1.Tables.clubs).doc(club.clubId).update({
+                    name: club.clubName,
+                    email: club.email
+                });
+                if (club.email !== oldEmail) {
+                    if (oldEmail.length) {
+                        const users = yield FirebaseService.db.collection(tableEntities_1.Tables.user).where("email", "==", oldEmail).get();
+                        for (const user of users.docs) {
+                            yield user.ref.update({
+                                user_type: 'user'
+                            });
+                        }
+                        const authorisedUsers = yield FirebaseService.db.collection(tableEntities_1.Tables.authorised_user).where("email", "==", oldEmail).get();
+                        for (const authUser of authorisedUsers.docs) {
+                            yield authUser.ref.update({
+                                email: club.email
+                            });
+                        }
+                    }
+                    else {
+                        const users = yield FirebaseService.db.collection(tableEntities_1.Tables.user).where("email", "==", club.email).get();
+                        if (users.docs.length) {
+                            for (const user of users.docs) {
+                                yield user.ref.update({
+                                    club,
+                                    user_type: 'dj'
+                                });
+                            }
+                        }
+                        else {
+                            yield FirebaseService.addAuthorisedUser(club);
+                        }
+                    }
+                }
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static addClub(clubName, email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield FirebaseService.db.collection(tableEntities_1.Tables.clubs).add({
+                    name: clubName,
+                    email
+                });
+                const club = {
+                    clubId: data.id,
+                    clubName,
+                    email
+                };
+                yield FirebaseService.addAuthorisedUser(club);
+                return club;
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static addModerator(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield FirebaseService.db.collection(tableEntities_1.Tables.authorised_user).add({
+                    email,
+                    user_type: 'moderator'
+                });
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static getModerators() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const data = yield FirebaseService.db.collection(tableEntities_1.Tables.authorised_user).where("user_type", "==", "moderator").get();
+                const users = data.docs.map((user) => {
+                    const userData = user.data();
+                    return userData.email || '';
+                });
+                return users;
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static deleteModerator(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const authorisedUser = yield FirebaseService.db.collection(tableEntities_1.Tables.authorised_user).where("email", "==", email).get();
+                for (const doc of authorisedUser.docs) {
+                    yield doc.ref.delete();
+                }
+                const user = yield FirebaseService.db.collection(tableEntities_1.Tables.user).where("email", "==", email).get();
+                for (const doc of user.docs) {
+                    yield doc.ref.update({
+                        user_type: "user"
                     });
                 }
             }

@@ -12,7 +12,13 @@ const API_ENDPOINTS = {
     addSongToList: '/add-song-to-list',
     removeSongFromList: '/remove-song-from-list',
     likeUnlikeSong: '/like-unlike-song',
-    fetchLikedSongs: '/fetch-liked-songs'
+    fetchLikedSongs: '/fetch-liked-songs',
+    updateClub: '/update-club',
+    deleteClub: '/delete-club',
+    addModerator: '/add-moderator',
+    getModerators: '/get-moderators',
+    addClub: '/add-club',
+    deleteMod: '/delete-mod'
 };
 exports.default = API_ENDPOINTS;
 //# sourceMappingURL=api_endpoints.js.map
