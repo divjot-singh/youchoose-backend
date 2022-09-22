@@ -9,6 +9,7 @@ export const AddSuggestedSongsHandler = async (req:Request<any, any, AddSuggeste
     try{
         const data:AddSuggestedSongsHandlerBody = req.body
         console.log('data',data)
+        console.log(typeof data)
         const returnVal: string | Error = await FirebaseService.addSuggestedSongToClub(data)
         if(instanceOfError(returnVal)){
             res.status(200).send({success:false, error:returnVal})
