@@ -47,6 +47,6 @@ router.post(API_ENDPOINTS.addModerator, AddModerator)
 router.post(API_ENDPOINTS.addClub, AddNewClub)
 router.post(API_ENDPOINTS.deleteMod, DeleteModerator)
 
-app.listen(process.env.SERVER_PORT, () => {
+app.listen(app.get('port'), () => {
     console.log(`Server started on port ${app.get('port')}`)
 })
