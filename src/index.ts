@@ -12,10 +12,16 @@ import { FetchLikedSongs, LikeUnlikeSong } from './handlers/likeSongHandler';
 
 const router = Router();
 const app = express()
-const fbService = new FirebaseService()
+var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app/']
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  origin: function (origin:string, callback:Function) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  optionsSuccessStatus: 820
 }
 app.use(cors(corsOptions))
 dotenv.config()
