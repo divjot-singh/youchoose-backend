@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 
 app.use('/', router)
 
-
+app.set('port', (process.env.PORT || 8080))
 router.post(API_ENDPOINTS.register, RegisterUserHandler)
 router.get(API_ENDPOINTS.fetchClubs, FetchClubsHandler)
 router.post(API_ENDPOINTS.addSuggestedSong, AddSuggestedSongsHandler)
@@ -46,5 +46,5 @@ router.post(API_ENDPOINTS.addClub, AddNewClub)
 router.post(API_ENDPOINTS.deleteMod, DeleteModerator)
 
 app.listen(process.env.SERVER_PORT, () => {
-    console.log(`Server started on port ${process.env.PORT}`)
+    console.log(`Server started on port ${app.get('port')}`)
 })
