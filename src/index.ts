@@ -28,7 +28,7 @@ app.use(cors(corsOptions))
 dotenv.config()
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 
 app.use('/', router)
 

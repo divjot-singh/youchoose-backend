@@ -8,6 +8,7 @@ import { CreateError, instanceOfError } from '../utils/createError';
 export const AddSuggestedSongsHandler = async (req:Request<any, any, AddSuggestedSongsHandlerBody,any>, res:Response, next:NextFunction) => {
     try{
         const data:AddSuggestedSongsHandlerBody = req.body
+        console.log(data)
         const returnVal: string | Error = await FirebaseService.addSuggestedSongToClub(data)
         if(instanceOfError(returnVal)){
             res.status(200).send({success:false, error:returnVal})
