@@ -54,6 +54,7 @@ export const AddModerator = async (req:Request<any, any, AddModeratorHandlerBody
 
 export const GetModerators = async (req:Request<any, any, any, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('request recieved')
         const moderators:string[] | Error = await FirebaseService.getModerators()
         if(Array.isArray(moderators)){
             res.status(200).send({success:true, data:moderators})
