@@ -15,6 +15,7 @@ class FirebaseService{
     private static auth: Auth;
     constructor(){
         try{
+            console.log('here')
             initializeApp({
                 credential: cert(JSON.parse(JSON.stringify(serviceAccount)))
             });
