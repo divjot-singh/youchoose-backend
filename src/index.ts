@@ -12,9 +12,10 @@ import { FetchLikedSongs, LikeUnlikeSong } from './handlers/likeSongHandler';
 
 const router = Router();
 const app = express()
-var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app/']
+var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app']
 const corsOptions = {
   origin: function (origin:string, callback:Function) {
+    console.log(origin)
     if (whitelist.indexOf(origin) !== -1) {
       callback(null, true)
     } else {
