@@ -14,11 +14,16 @@ class FirebaseService{
     private static db:FirebaseFirestore.Firestore;
     private static auth: Auth;
     constructor(){
-        initializeApp({
-            credential: cert(JSON.parse(JSON.stringify(serviceAccount)))
-          });
-        FirebaseService.db = getFirestore();
-        FirebaseService.auth = getAuth()
+        try{
+            initializeApp({
+                credential: cert(JSON.parse(JSON.stringify(serviceAccount)))
+            });
+            FirebaseService.db = getFirestore();
+            FirebaseService.auth = getAuth()
+        } 
+        catch(err){
+            console.error(err)
+        }
     }
     static async checkIfUserExists(user:User): Promise<User | Error | null>{
         try{

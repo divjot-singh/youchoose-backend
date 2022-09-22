@@ -25,6 +25,8 @@ app.use(bodyParser.json());
 
 app.use('/', router)
 
+const service = new FirebaseService()
+
 app.set('port', (process.env.PORT || 8080))
 router.post(API_ENDPOINTS.register, RegisterUserHandler)
 router.get(API_ENDPOINTS.fetchClubs, FetchClubsHandler)
