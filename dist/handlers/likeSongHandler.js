@@ -17,6 +17,7 @@ const firebaseService_1 = __importDefault(require("../services/firebaseService")
 const createError_1 = require("../utils/createError");
 const LikeUnlikeSong = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside LikeUnlikeSong');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.likeUnlikeSong(data.userId, data.song);
         if ((0, createError_1.instanceOfError)(returnVal)) {
@@ -33,6 +34,7 @@ const LikeUnlikeSong = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 exports.LikeUnlikeSong = LikeUnlikeSong;
 const FetchLikedSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchLikedSongs');
         const data = req.query;
         const returnVal = yield firebaseService_1.default.fetchLikedSongs(data.userId);
         if (Array.isArray(returnVal)) {

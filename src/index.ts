@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import API_ENDPOINTS from './utils/api_endpoints';
-import RegisterUserHandler, { AddModerator, DeleteModerator, GetModerators } from './handlers/registerUserHandler';
+import {RegisterUserHandler, AddModerator, DeleteModerator, GetModerators } from './handlers/registerUserHandler';
 import FirebaseService from './services/firebaseService';
 import {AddNewClub, DeleteClubHandler, FetchClubsHandler, UpdateClubHandler} from './handlers/fetchClubsHandler';
 import {AddSongToList, AddSuggestedSongsHandler, FetchClubSongs, FetchSuggestedSongsList, FetchUserSuggestedSongs, RemoveSongFromList, RemoveSongFromSuggestedList, RemoveUserSuggestedSong} from './handlers/suggestedSongsHandler';
@@ -22,7 +22,7 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'))
     }
   },
-  optionsSuccessStatus: 820
+  optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
 dotenv.config()

@@ -15,7 +15,7 @@ class FirebaseService{
     private static auth: Auth;
     constructor(){
         try{
-            console.log('here')
+            console.log('initialising firebase app')
             initializeApp({
                 credential: cert(JSON.parse(JSON.stringify(serviceAccount)))
             });
@@ -28,6 +28,7 @@ class FirebaseService{
     }
     static async checkIfUserExists(user:User): Promise<User | Error | null>{
         try{
+            console.log('inside checkIfUserExists')
             const snapshot:FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.user).doc(user.uid).get()
             if(snapshot.exists){
                 await FirebaseService.db.collection(Tables.user).doc(user.uid).update({"token": user.token})
@@ -42,6 +43,7 @@ class FirebaseService{
     }
     static async addSuggestedSongToClub(songData:AddSuggestedSongsHandlerBody): Promise<string | Error>{
         try{
+            console.log('inside addSuggestedSongToClub')
             const dataAtDoc:SongEntityAtClub = {
                 song:songData.song,
             }
@@ -56,6 +58,7 @@ class FirebaseService{
     }
     static async isSongLiked(userId:string, songId:string):Promise<boolean>{
         try{
+            console.log('inside isSongLiked')
             const data = await FirebaseService.db.collection(Tables.likedSongs).doc(userId).collection(Tables.nestedLikedSongs).doc(songId).get();
             if(data.exists){
                 return true
@@ -63,11 +66,13 @@ class FirebaseService{
                 return false
             }
         } catch(err){
+            console.error(err)
             return false
         }
     }
     static async likeUnlikeSong(userId:string, song:Song):Promise<void | Error>{
         try{
+            console.log('inside likeUnlikeSong')
             const isSongLiked = await FirebaseService.isSongLiked(userId, song.videoId)
             if(isSongLiked){
                 await FirebaseService.db.collection(Tables.likedSongs).doc(userId).collection(Tables.nestedLikedSongs).doc(song.videoId).delete();
@@ -80,6 +85,7 @@ class FirebaseService{
     }
     static async fetchLikedSongs(userId:string):Promise<Song[] | Error>{
         try{
+            console.log('inside fetchLikedSongs')
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.likedSongs).doc(userId).collection(Tables.nestedLikedSongs).get()
             const songs:Song[] = data.docs.map((song:any) => getSongFromMap(song.data()))
             return songs
@@ -89,6 +95,7 @@ class FirebaseService{
     }
     static async checkIfUserIsAuthorised(user:AuthorisedUser): Promise<AuthorisedUser | Error | null>{
         try{
+            console.log('inside checkIfUserIsAuthorised')
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where('email',"==",user.email).get()
             if(data.docs.length){
                 const doc = data.docs[0];
@@ -107,6 +114,7 @@ class FirebaseService{
     }
     static async fetchClubSongs(clubId:string): Promise<Song[] | Error>{
         try{
+            console.log('inside fetchClubSongs')
             const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get()
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
@@ -127,6 +135,7 @@ class FirebaseService{
     }
     static async fetchUserSuggestedClubSongs(clubId:string, userId:string): Promise<Song[] | Error>{
         try{
+            console.log('inside fetchUserSuggestedClubSongs')
             const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where('userId', "==", userId).get();
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
@@ -149,6 +158,7 @@ class FirebaseService{
     }
     static async getSuggestedSongs(clubId:string): Promise<Song[] | Error>{
         try{
+            console.log('inside getSuggestedSongs')
             const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get();
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
@@ -171,6 +181,7 @@ class FirebaseService{
     }
     static async checkIfSongIsAdded(clubId:string, song:Song):Promise<string|Error>{
         try{
+            console.log('inside checkIfSongIsAdded')
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get()
             if(data.docs.length){
                 return data.docs[0].id
@@ -183,6 +194,7 @@ class FirebaseService{
     }
     static async addSongToList(clubId:string, song:Song):Promise<string|Error>{
         try{
+            console.log('inside addSongToList')
             const isSongAdded:string | Error = await FirebaseService.checkIfSongIsAdded(clubId, song);
             if(typeof isSongAdded === 'string'){
                 return isSongAdded
@@ -196,6 +208,7 @@ class FirebaseService{
     }
     static async removeSongFromList(clubId:string, song:Song):Promise<void|Error>{
         try{
+            console.log('inside removeSongFromList')
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get()
             if(data.docs.length){
                 for(const doc of data.docs){
@@ -208,6 +221,7 @@ class FirebaseService{
     }
     static async removeUserSuggestedSong(clubId:string, docId:string): Promise<void | Error>{
         try{
+            console.log('inside removeUserSuggestedSong')
             await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(docId).delete()
         } catch(err){
             return CreateError(err)
@@ -215,6 +229,7 @@ class FirebaseService{
     }
     static async removeSuggestedSong(clubId:string, songId:string): Promise<void | Error>{
         try{
+            console.log('inside removeSuggestedSong')
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> =  await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get()
             if(data.docs.length){
                 for(const doc of data.docs){
@@ -231,6 +246,7 @@ class FirebaseService{
     }
     static async addUserToTable(user:User): Promise<void | Error>{
         try{
+            console.log('inside addUserToTable')
             await FirebaseService.db.collection(Tables.user).doc(user.uid).set(user)
         } catch(err){
             return CreateError(err)
@@ -238,6 +254,7 @@ class FirebaseService{
     }
     static async createCustomToken(user:User):Promise<string | Error>{
         try{
+            console.log('inside createCustomToken')
            const token:string =  await FirebaseService.auth.createCustomToken(user.uid)
            return token;
         } catch(err){
@@ -246,6 +263,7 @@ class FirebaseService{
     }
     static async fetchClubs():Promise<Club[] | Error>{
         try{
+            console.log('inside fetchclubs')
            const snapshot:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> =  await FirebaseService.db.collection(Tables.clubs).get()
            if(snapshot.empty){
             return []
@@ -265,6 +283,7 @@ class FirebaseService{
     }
     static async deleteClub(clubId:string, email:string):Promise<void | Error>{
         try{
+            console.log('inside deleteClub')
             await FirebaseService.db.collection(Tables.clubs).doc(clubId).delete()
             const users:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.user).where("email","==", email).get()
             for(const user of users.docs){
@@ -280,6 +299,7 @@ class FirebaseService{
     }
     static async addAuthorisedUser(club:Club):Promise<void | Error>{
         try{
+            console.log('inside addAuthorisedUser')
             await FirebaseService.db.collection(Tables.authorised_user).add({
                 club:{
                     clubId:club.clubId,
@@ -295,6 +315,7 @@ class FirebaseService{
     }
     static async updateClub(club:Club, oldEmail:string):Promise<Club | Error>{
         try{
+            console.log('inside updateClub')
             await FirebaseService.db.collection(Tables.clubs).doc(club.clubId).update({
                 name:club.clubName,
                 email:club.email
@@ -333,6 +354,7 @@ class FirebaseService{
     }
     static async addClub(clubName:string, email:string):Promise<Club | Error>{
         try{
+            console.log('inside addClub')
             const data:FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.clubs).add({
                 name:clubName,
                 email
@@ -350,6 +372,7 @@ class FirebaseService{
     }
     static async addModerator(email:string):Promise<void|Error>{
         try{
+            console.log('inside addModerator')
             await FirebaseService.db.collection(Tables.authorised_user).add({
                 email,
                 user_type:'moderator'
@@ -360,6 +383,7 @@ class FirebaseService{
     }
     static async getModerators():Promise<string[]|Error>{
         try{
+            console.log('inside getModerators')
             const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where("user_type","==", "moderator").get()
             const users = data.docs.map((user) => {
                 const userData = user.data()
@@ -372,6 +396,7 @@ class FirebaseService{
     }
     static async deleteModerator(email:string):Promise<void | Error>{
         try{
+            console.log('inside deleteModerator')
             const authorisedUser:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.authorised_user).where("email","==", email).get()
             for(const doc of authorisedUser.docs){
                 await doc.ref.delete()
