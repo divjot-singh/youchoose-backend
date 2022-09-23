@@ -3,10 +3,12 @@ import Song from '../entities/song';
 import { AddSongToListBody, AddSuggestedSongsHandlerBody, FetchClubSongsHandlerBody, FetchUserSuggestedClubSongsHandlerBody, RemoveSongFromListBody, RemoveUserSuggestedSongHandlerBody, SuggestedSongsQueryParams } from '../entities/postBodyEntities';
 import FirebaseService from '../services/firebaseService';
 import { CreateError, instanceOfError } from '../utils/createError';
+import qs from 'qs'
 
 
 export const AddSuggestedSongsHandler = async (req:Request<any, any, AddSuggestedSongsHandlerBody,any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside AddSuggestedSongsHandler')
         const data:AddSuggestedSongsHandlerBody = req.body
         const returnVal: string | Error = await FirebaseService.addSuggestedSongToClub(data)
         if(instanceOfError(returnVal)){
@@ -21,6 +23,7 @@ export const AddSuggestedSongsHandler = async (req:Request<any, any, AddSuggeste
 
 export const FetchClubSongs = async(req:Request<any, any, any,FetchClubSongsHandlerBody>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside FetchClubSongs')
         const data:FetchClubSongsHandlerBody = req.query;
         const returnVal: Song[] | Error = await FirebaseService.fetchClubSongs(data.clubId)
         if(Array.isArray(returnVal)){
@@ -35,6 +38,7 @@ export const FetchClubSongs = async(req:Request<any, any, any,FetchClubSongsHand
 
 export const FetchUserSuggestedSongs = async(req:Request<any, any, any,FetchUserSuggestedClubSongsHandlerBody>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside FetchUserSuggestedSongs')
         const data:FetchUserSuggestedClubSongsHandlerBody = req.query
         const returnVal: Song[] | Error = await FirebaseService.fetchUserSuggestedClubSongs(data.clubId, data.userId)
         if(Array.isArray(returnVal)){
@@ -49,6 +53,7 @@ export const FetchUserSuggestedSongs = async(req:Request<any, any, any,FetchUser
 
 export const RemoveUserSuggestedSong = async(req:Request<any, any, RemoveUserSuggestedSongHandlerBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside RemoveUserSuggestedSong')
         const data:RemoveUserSuggestedSongHandlerBody = req.body
         const returnVal: void | Error = await FirebaseService.removeUserSuggestedSong(data.clubId, data.docId)
         if(returnVal){
@@ -63,6 +68,7 @@ export const RemoveUserSuggestedSong = async(req:Request<any, any, RemoveUserSug
 
 export const FetchSuggestedSongsList = async(req:Request<any, any, any, SuggestedSongsQueryParams>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside FetchSuggestedSongsList')
         const data:SuggestedSongsQueryParams = req.query
         const songsList: Song[] | Error = await FirebaseService.getSuggestedSongs(data.clubId)
         if(Array.isArray(songsList)){
@@ -77,6 +83,7 @@ export const FetchSuggestedSongsList = async(req:Request<any, any, any, Suggeste
 
 export const AddSongToList = async(req:Request<any, any, AddSongToListBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside AddSongToList')
         const data:AddSongToListBody = req.body
         const songDocId: string | Error = await FirebaseService.addSongToList(data.clubId, data.song)
         if(instanceOfError(songDocId)){
@@ -90,6 +97,7 @@ export const AddSongToList = async(req:Request<any, any, AddSongToListBody, any>
 }
 export const RemoveSongFromList = async(req:Request<any, any, AddSongToListBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside RemoveSongFromList')
         const data:AddSongToListBody = req.body
         const returnVal: void | Error = await FirebaseService.removeSongFromList(data.clubId, data.song)
         if(instanceOfError(returnVal)){
@@ -104,6 +112,7 @@ export const RemoveSongFromList = async(req:Request<any, any, AddSongToListBody,
 
 export const RemoveSongFromSuggestedList = async(req:Request<any, any,RemoveSongFromListBody, any>, res:Response, next:NextFunction ) => {
     try{
+        console.log('inside RemoveSongFromSuggestedList')
         const data:RemoveSongFromListBody = req.body
         const returnVal: void | Error = await FirebaseService.removeSuggestedSong(data.clubId, data.songId)
         if(instanceOfError(returnVal)){

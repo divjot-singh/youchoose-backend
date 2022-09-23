@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteModerator = exports.GetModerators = exports.AddModerator = void 0;
+exports.DeleteModerator = exports.GetModerators = exports.AddModerator = exports.RegisterUserHandler = void 0;
 const user_1 = require("../entities/user");
 const firebaseService_1 = __importDefault(require("../services/firebaseService"));
 const createError_1 = require("../utils/createError");
 const RegisterUserHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside RegisterUserHandler');
         const user = req.body;
         if ((0, user_1.instanceOfUser)(user)) {
             const tableUser = Object.assign({}, user);
@@ -51,8 +52,10 @@ const RegisterUserHandler = (req, res, next) => __awaiter(void 0, void 0, void 0
         res.status(200).send((0, createError_1.CreateError)(err));
     }
 });
+exports.RegisterUserHandler = RegisterUserHandler;
 const AddModerator = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside AddModerator');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.addModerator(data.email);
         if (!returnVal) {
@@ -69,6 +72,7 @@ const AddModerator = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 exports.AddModerator = AddModerator;
 const GetModerators = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside GetModerators');
         const moderators = yield firebaseService_1.default.getModerators();
         if (Array.isArray(moderators)) {
             res.status(200).send({ success: true, data: moderators });
@@ -84,6 +88,7 @@ const GetModerators = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.GetModerators = GetModerators;
 const DeleteModerator = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside DeleteModerator');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.deleteModerator(data.email);
         if (!returnVal) {
@@ -98,5 +103,4 @@ const DeleteModerator = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.DeleteModerator = DeleteModerator;
-exports.default = RegisterUserHandler;
 //# sourceMappingURL=registerUserHandler.js.map

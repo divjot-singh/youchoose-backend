@@ -2,12 +2,13 @@ import Axios from 'axios'
 import { API_ENDPOINTS } from '../utils/apiEndpoints'
 import { LocalStorageKeys } from '../utils/localstorageKeys'
 import LocalStorageMethods from './localstorageService'
+import qs from 'qs'
 
 
 let _getAxiosInstance = ({isAbsoluteUrl = false, isYoutubeApiUrl = false}) => {
   const headers:any =  {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
   }
   const authToken = LocalStorageMethods.get(LocalStorageKeys.token)
   if (authToken){
@@ -75,7 +76,7 @@ let _makeRequest = async ({url, type, data, isAbsoluteUrl, isYoutubeApiUrl}:Make
     }
     
     if (type === 'POST') {
-      response = await _getAxiosInstance({ isAbsoluteUrl, isYoutubeApiUrl }).post(url, data)
+      response = await _getAxiosInstance({ isAbsoluteUrl, isYoutubeApiUrl }).post(url, qs.stringify(data))
     }
 
     if (response.data) {

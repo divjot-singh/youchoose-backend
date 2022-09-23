@@ -31,24 +31,34 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const cors_1 = __importDefault(require("cors"));
 const api_endpoints_1 = __importDefault(require("./utils/api_endpoints"));
-const registerUserHandler_1 = __importStar(require("./handlers/registerUserHandler"));
+const registerUserHandler_1 = require("./handlers/registerUserHandler");
 const firebaseService_1 = __importDefault(require("./services/firebaseService"));
 const fetchClubsHandler_1 = require("./handlers/fetchClubsHandler");
 const suggestedSongsHandler_1 = require("./handlers/suggestedSongsHandler");
 const likeSongHandler_1 = require("./handlers/likeSongHandler");
 const router = (0, express_1.Router)();
 const app = (0, express_1.default)();
-const fbService = new firebaseService_1.default();
+var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app'];
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    origin: function (origin, callback) {
+        console.log(origin);
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    optionsSuccessStatus: 200
 };
 app.use((0, cors_1.default)(corsOptions));
 dotenv_1.default.config();
-app.use(body_parser_1.default.urlencoded({ extended: false }));
+app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
 app.use('/', router);
-router.post(api_endpoints_1.default.register, registerUserHandler_1.default);
+const service = new firebaseService_1.default();
+app.set('port', (process.env.PORT || 8080));
+router.post(api_endpoints_1.default.register, registerUserHandler_1.RegisterUserHandler);
 router.get(api_endpoints_1.default.fetchClubs, fetchClubsHandler_1.FetchClubsHandler);
 router.post(api_endpoints_1.default.addSuggestedSong, suggestedSongsHandler_1.AddSuggestedSongsHandler);
 router.get(api_endpoints_1.default.userSuggestedSong, suggestedSongsHandler_1.FetchUserSuggestedSongs);
@@ -66,7 +76,7 @@ router.post(api_endpoints_1.default.deleteClub, fetchClubsHandler_1.DeleteClubHa
 router.post(api_endpoints_1.default.addModerator, registerUserHandler_1.AddModerator);
 router.post(api_endpoints_1.default.addClub, fetchClubsHandler_1.AddNewClub);
 router.post(api_endpoints_1.default.deleteMod, registerUserHandler_1.DeleteModerator);
-app.listen(process.env.SERVER_PORT, () => {
-    console.log(`Server started on port ${process.env.SERVER_PORT}`);
+app.listen(app.get('port'), () => {
+    console.log(`Server started on port ${app.get('port')}`);
 });
 //# sourceMappingURL=index.js.map

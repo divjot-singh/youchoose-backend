@@ -17,6 +17,7 @@ const firebaseService_1 = __importDefault(require("../services/firebaseService")
 const createError_1 = require("../utils/createError");
 const AddSuggestedSongsHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside AddSuggestedSongsHandler');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.addSuggestedSongToClub(data);
         if ((0, createError_1.instanceOfError)(returnVal)) {
@@ -33,6 +34,7 @@ const AddSuggestedSongsHandler = (req, res, next) => __awaiter(void 0, void 0, v
 exports.AddSuggestedSongsHandler = AddSuggestedSongsHandler;
 const FetchClubSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchClubSongs');
         const data = req.query;
         const returnVal = yield firebaseService_1.default.fetchClubSongs(data.clubId);
         if (Array.isArray(returnVal)) {
@@ -49,6 +51,7 @@ const FetchClubSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 exports.FetchClubSongs = FetchClubSongs;
 const FetchUserSuggestedSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchUserSuggestedSongs');
         const data = req.query;
         const returnVal = yield firebaseService_1.default.fetchUserSuggestedClubSongs(data.clubId, data.userId);
         if (Array.isArray(returnVal)) {
@@ -65,6 +68,7 @@ const FetchUserSuggestedSongs = (req, res, next) => __awaiter(void 0, void 0, vo
 exports.FetchUserSuggestedSongs = FetchUserSuggestedSongs;
 const RemoveUserSuggestedSong = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside RemoveUserSuggestedSong');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.removeUserSuggestedSong(data.clubId, data.docId);
         if (returnVal) {
@@ -81,6 +85,7 @@ const RemoveUserSuggestedSong = (req, res, next) => __awaiter(void 0, void 0, vo
 exports.RemoveUserSuggestedSong = RemoveUserSuggestedSong;
 const FetchSuggestedSongsList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchSuggestedSongsList');
         const data = req.query;
         const songsList = yield firebaseService_1.default.getSuggestedSongs(data.clubId);
         if (Array.isArray(songsList)) {
@@ -97,6 +102,7 @@ const FetchSuggestedSongsList = (req, res, next) => __awaiter(void 0, void 0, vo
 exports.FetchSuggestedSongsList = FetchSuggestedSongsList;
 const AddSongToList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside AddSongToList');
         const data = req.body;
         const songDocId = yield firebaseService_1.default.addSongToList(data.clubId, data.song);
         if ((0, createError_1.instanceOfError)(songDocId)) {
@@ -113,6 +119,7 @@ const AddSongToList = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.AddSongToList = AddSongToList;
 const RemoveSongFromList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside RemoveSongFromList');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.removeSongFromList(data.clubId, data.song);
         if ((0, createError_1.instanceOfError)(returnVal)) {
@@ -129,6 +136,7 @@ const RemoveSongFromList = (req, res, next) => __awaiter(void 0, void 0, void 0,
 exports.RemoveSongFromList = RemoveSongFromList;
 const RemoveSongFromSuggestedList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside RemoveSongFromSuggestedList');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.removeSuggestedSong(data.clubId, data.songId);
         if ((0, createError_1.instanceOfError)(returnVal)) {

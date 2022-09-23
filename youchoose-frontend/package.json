@@ -13,6 +13,7 @@
     "axios": "^0.27.2",
     "firebase": "^9.9.4",
     "fuzzy-search": "^3.2.1",
+    "qs": "^6.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.4.0",

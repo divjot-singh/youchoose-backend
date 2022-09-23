@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import API_ENDPOINTS from './utils/api_endpoints';
-import RegisterUserHandler, { AddModerator, DeleteModerator, GetModerators } from './handlers/registerUserHandler';
+import {RegisterUserHandler, AddModerator, DeleteModerator, GetModerators } from './handlers/registerUserHandler';
 import FirebaseService from './services/firebaseService';
 import {AddNewClub, DeleteClubHandler, FetchClubsHandler, UpdateClubHandler} from './handlers/fetchClubsHandler';
 import {AddSongToList, AddSuggestedSongsHandler, FetchClubSongs, FetchSuggestedSongsList, FetchUserSuggestedSongs, RemoveSongFromList, RemoveSongFromSuggestedList, RemoveUserSuggestedSong} from './handlers/suggestedSongsHandler';
@@ -12,20 +12,29 @@ import { FetchLikedSongs, LikeUnlikeSong } from './handlers/likeSongHandler';
 
 const router = Router();
 const app = express()
-const fbService = new FirebaseService()
+var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app']
 const corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  origin: function (origin:string, callback:Function) {
+    console.log(origin)
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  optionsSuccessStatus: 200
 }
 app.use(cors(corsOptions))
 dotenv.config()
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use('/', router)
 
+const service = new FirebaseService()
 
+app.set('port', (process.env.PORT || 8080))
 router.post(API_ENDPOINTS.register, RegisterUserHandler)
 router.get(API_ENDPOINTS.fetchClubs, FetchClubsHandler)
 router.post(API_ENDPOINTS.addSuggestedSong, AddSuggestedSongsHandler)
@@ -45,6 +54,6 @@ router.post(API_ENDPOINTS.addModerator, AddModerator)
 router.post(API_ENDPOINTS.addClub, AddNewClub)
 router.post(API_ENDPOINTS.deleteMod, DeleteModerator)
 
-app.listen(process.env.SERVER_PORT, () => {
-    console.log(`Server started on port ${process.env.SERVER_PORT}`)
+app.listen(app.get('port'), () => {
+    console.log(`Server started on port ${app.get('port')}`)
 })

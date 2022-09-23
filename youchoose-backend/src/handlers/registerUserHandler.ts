@@ -5,8 +5,9 @@ import FirebaseService from '../services/firebaseService';
 import { CreateError } from '../utils/createError';
 
 
-const RegisterUserHandler = async (req:Request, res:Response, next:NextFunction) => {
+export const RegisterUserHandler = async (req:Request, res:Response, next:NextFunction) => {
     try{
+        console.log('inside RegisterUserHandler')
         const user:User | null | undefined=req.body;
         if(instanceOfUser(user)){
             const tableUser:User = {...user}
@@ -40,6 +41,7 @@ const RegisterUserHandler = async (req:Request, res:Response, next:NextFunction)
 
 export const AddModerator = async (req:Request<any, any, AddModeratorHandlerBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside AddModerator')
         const data:AddModeratorHandlerBody = req.body
         const returnVal:void| Error = await FirebaseService.addModerator(data.email)
         if(!returnVal){
@@ -54,6 +56,7 @@ export const AddModerator = async (req:Request<any, any, AddModeratorHandlerBody
 
 export const GetModerators = async (req:Request<any, any, any, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside GetModerators')
         const moderators:string[] | Error = await FirebaseService.getModerators()
         if(Array.isArray(moderators)){
             res.status(200).send({success:true, data:moderators})
@@ -67,6 +70,7 @@ export const GetModerators = async (req:Request<any, any, any, any>, res:Respons
 
 export const DeleteModerator = async (req:Request<any, any, AddModeratorHandlerBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside DeleteModerator')
         const data:AddModeratorHandlerBody = req.body
         const returnVal:void| Error = await FirebaseService.deleteModerator(data.email)
         if(!returnVal){
@@ -79,4 +83,3 @@ export const DeleteModerator = async (req:Request<any, any, AddModeratorHandlerB
     }
 }
 
-export default RegisterUserHandler

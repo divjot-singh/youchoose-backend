@@ -6,6 +6,7 @@ import { CreateError, instanceOfError } from "../utils/createError"
 
 export const LikeUnlikeSong = async (req:Request<any, any,LikeSongBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside LikeUnlikeSong')
         const data:LikeSongBody = req.body
         const returnVal:void | Error = await FirebaseService.likeUnlikeSong(data.userId, data.song)
         if(instanceOfError(returnVal)){
@@ -20,6 +21,7 @@ export const LikeUnlikeSong = async (req:Request<any, any,LikeSongBody, any>, re
 
 export const FetchLikedSongs = async (req:Request<any, any,any, FetchLikedSongsBody>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside FetchLikedSongs')
         const data:FetchLikedSongsBody = req.query
         const returnVal:Song[] | Error = await FirebaseService.fetchLikedSongs(data.userId)
         if(Array.isArray(returnVal)){

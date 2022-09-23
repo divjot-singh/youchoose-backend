@@ -1,4 +1,5 @@
 export const CreateError = (error:Error) => {
+    console.error(error)
     return {
         success:false,
         message:error.message,

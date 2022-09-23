@@ -8,6 +8,7 @@ import { CreateError } from '../utils/createError';
 
 export const FetchClubsHandler = async (req:Request, res:Response, next:NextFunction) => {
     try{
+        console.log('inside FetchClubsHandler')
         const clubs = await FirebaseService.fetchClubs()
         res.status(200).send({success:true, data:clubs})
     } catch(err){
@@ -17,6 +18,7 @@ export const FetchClubsHandler = async (req:Request, res:Response, next:NextFunc
 
 export const DeleteClubHandler = async (req:Request<any, any, ClubHandlerBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside DeleteClubHandler')
         const data:ClubHandlerBody = req.body
         const returnVal = await FirebaseService.deleteClub(data.clubId, data.email)
         if(!returnVal){
@@ -32,6 +34,7 @@ export const DeleteClubHandler = async (req:Request<any, any, ClubHandlerBody, a
 
 export const UpdateClubHandler = async (req:Request<any, any, UpdateClubHandlerBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside UpdateClubHandler')
         const data:UpdateClubHandlerBody = req.body
         const returnVal = await FirebaseService.updateClub(data.club, data.oldEmail)
         if(!returnVal){
@@ -46,6 +49,7 @@ export const UpdateClubHandler = async (req:Request<any, any, UpdateClubHandlerB
 
 export const AddNewClub = async (req:Request<any, any, AddClubHandlerBody, any>, res:Response, next:NextFunction) => {
     try{
+        console.log('inside AddNewClub')
         const data:AddClubHandlerBody = req.body
         const returnVal = await FirebaseService.addClub(data.clubName, data.email)
         if(instanceOfClub(returnVal)){
