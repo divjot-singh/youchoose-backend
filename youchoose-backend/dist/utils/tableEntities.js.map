@@ -1,1 +1,0 @@
-{"version":3,"file":"tableEntities.js","sourceRoot":"","sources":["../../src/utils/tableEntities.ts"],"names":[],"mappings":";;;AAEa,QAAA,MAAM,GAAE;IACjB,IAAI,EAAC,MAAM;IACX,KAAK,EAAC,OAAO;IACb,UAAU,EAAC,YAAY;IACvB,UAAU,EAAC,YAAY;IACvB,oBAAoB,EAAC,sBAAsB;IAC3C,0BAA0B,EAAC,aAAa;IACxC,eAAe,EAAC,iBAAiB;IACjC,UAAU,EAAC,YAAY;IACvB,gBAAgB,EAAC,OAAO;CAC3B,CAAA"}
