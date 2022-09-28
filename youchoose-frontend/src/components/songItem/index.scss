@@ -1,0 +1,46 @@
+.song-item{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 8px 12px;
+    width: 400px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    img{
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    p{
+        font-size: 16px;
+        line-height: 20px;
+        font-weight: bold;
+        color: white;
+        width: calc( 100% - 120px);
+    }
+    .ctas{
+        display: flex;
+        width: 50px;
+        margin-left: 10px;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+}
+
+.like-component{
+    position: relative;
+    &.liked{
+        color: #ffffff;
+    }
+    .like-count{
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        line-height: 14px;
+        font-weight: bold;
+    }
+}
