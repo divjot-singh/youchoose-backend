@@ -159,6 +159,7 @@ class FirebaseService {
                 const songs = res.docs.map((doc) => {
                     const data = doc.data();
                     const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0 } = data || {};
+                    console.log(`${title} likes`, likes);
                     return {
                         title,
                         etag,
@@ -169,6 +170,7 @@ class FirebaseService {
                         likes
                     };
                 });
+                console.log(songs);
                 return songs;
             }
             catch (err) {

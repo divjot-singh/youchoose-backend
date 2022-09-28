@@ -124,6 +124,7 @@ class FirebaseService{
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
                 const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0} = data || {}
+                console.log(`${title} likes`, likes)
                 return {
                     title,
                     etag,
@@ -134,6 +135,7 @@ class FirebaseService{
                     likes
                 }
             })
+            console.log(songs)
             return songs;
         }catch(err){
             return CreateError(err)
