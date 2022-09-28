@@ -169,6 +169,7 @@ class FirebaseService{
             const doc:FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(song.videoId).get()
             if(doc.exists){
                 let docData = doc.data()
+                console.log(docData)
                 let likes:number = parseInt(docData['likes'] ?? 0)
                 await doc.ref.update({"likes": likes+1}) 
                 return likes + 1
