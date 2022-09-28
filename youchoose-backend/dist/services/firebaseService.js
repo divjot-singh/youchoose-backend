@@ -211,6 +211,7 @@ class FirebaseService {
                 const doc = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(song.videoId).get();
                 if (doc.exists) {
                     let docData = doc.data();
+                    console.log(docData);
                     let likes = parseInt((_a = docData['likes']) !== null && _a !== void 0 ? _a : 0);
                     yield doc.ref.update({ "likes": likes + 1 });
                     return likes + 1;
