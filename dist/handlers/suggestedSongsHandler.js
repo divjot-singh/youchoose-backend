@@ -12,27 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RemoveSongFromSuggestedList = exports.RemoveSongFromList = exports.AddSongToList = exports.FetchSuggestedSongsList = exports.RemoveUserSuggestedSong = exports.FetchUserSuggestedSongs = exports.FetchClubSongs = exports.AddSuggestedSongsHandler = void 0;
+exports.RemoveUserSuggestedSong = exports.FetchUserSuggestedSongs = exports.RemoveSongFromList = exports.RemoveUserSuggestedSongFromList = exports.AddSongToList = exports.FetchClubSongs = void 0;
 const firebaseService_1 = __importDefault(require("../services/firebaseService"));
 const createError_1 = require("../utils/createError");
-const AddSuggestedSongsHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = req.body;
-        const returnVal = yield firebaseService_1.default.addSuggestedSongToClub(data);
-        if ((0, createError_1.instanceOfError)(returnVal)) {
-            res.status(200).send({ success: false, error: returnVal });
-        }
-        else {
-            res.status(200).send({ success: true, data: { docId: returnVal } });
-        }
-    }
-    catch (err) {
-        res.status(200).send((0, createError_1.CreateError)(err));
-    }
-});
-exports.AddSuggestedSongsHandler = AddSuggestedSongsHandler;
 const FetchClubSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchClubSongs');
         const data = req.query;
         const returnVal = yield firebaseService_1.default.fetchClubSongs(data.clubId);
         if (Array.isArray(returnVal)) {
@@ -47,8 +32,60 @@ const FetchClubSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.FetchClubSongs = FetchClubSongs;
+const AddSongToList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('inside AddSongToList');
+        const data = req.body;
+        const songLikes = yield firebaseService_1.default.addSongToList(data.clubId, data.song, data.userId);
+        if ((0, createError_1.instanceOfError)(songLikes)) {
+            res.status(200).send({ success: false, error: songLikes });
+        }
+        else {
+            res.status(200).send({ success: true, data: { likes: songLikes } });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.AddSongToList = AddSongToList;
+const RemoveUserSuggestedSongFromList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('inside RemoveUserSuggestedSongFromList');
+        const data = req.body;
+        const returnVal = yield firebaseService_1.default.removeUserSuggestedSong(data.clubId, data.songId, data.userId);
+        if ((0, createError_1.instanceOfError)(returnVal)) {
+            res.status(200).send({ success: false, error: returnVal });
+        }
+        else {
+            res.status(200).send({ success: true, data: { likes: returnVal } });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.RemoveUserSuggestedSongFromList = RemoveUserSuggestedSongFromList;
+const RemoveSongFromList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('inside RemoveSongFromList');
+        const data = req.body;
+        const returnVal = yield firebaseService_1.default.removeSongFromList(data.clubId, data.songId);
+        if ((0, createError_1.instanceOfError)(returnVal)) {
+            res.status(200).send({ success: false, error: returnVal });
+        }
+        else {
+            res.status(200).send({ success: true });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.RemoveSongFromList = RemoveSongFromList;
 const FetchUserSuggestedSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchUserSuggestedSongs');
         const data = req.query;
         const returnVal = yield firebaseService_1.default.fetchUserSuggestedClubSongs(data.clubId, data.userId);
         if (Array.isArray(returnVal)) {
@@ -65,13 +102,14 @@ const FetchUserSuggestedSongs = (req, res, next) => __awaiter(void 0, void 0, vo
 exports.FetchUserSuggestedSongs = FetchUserSuggestedSongs;
 const RemoveUserSuggestedSong = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside RemoveUserSuggestedSong');
         const data = req.body;
-        const returnVal = yield firebaseService_1.default.removeUserSuggestedSong(data.clubId, data.docId);
-        if (returnVal) {
+        const returnVal = yield firebaseService_1.default.removeUserSuggestedSong(data.clubId, data.songId, data.userId);
+        if ((0, createError_1.instanceOfError)(returnVal)) {
             res.status(200).send({ success: false, error: returnVal });
         }
         else {
-            res.status(200).send({ success: true });
+            res.status(200).send({ success: true, data: { likes: returnVal } });
         }
     }
     catch (err) {
@@ -79,68 +117,4 @@ const RemoveUserSuggestedSong = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 exports.RemoveUserSuggestedSong = RemoveUserSuggestedSong;
-const FetchSuggestedSongsList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = req.query;
-        const songsList = yield firebaseService_1.default.getSuggestedSongs(data.clubId);
-        if (Array.isArray(songsList)) {
-            res.status(200).send({ success: true, data: songsList });
-        }
-        else {
-            res.status(200).send({ success: false });
-        }
-    }
-    catch (err) {
-        res.status(200).send((0, createError_1.CreateError)(err));
-    }
-});
-exports.FetchSuggestedSongsList = FetchSuggestedSongsList;
-const AddSongToList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = req.body;
-        const songDocId = yield firebaseService_1.default.addSongToList(data.clubId, data.song);
-        if ((0, createError_1.instanceOfError)(songDocId)) {
-            res.status(200).send({ success: false, error: songDocId });
-        }
-        else {
-            res.status(200).send({ success: true, data: { docId: songDocId } });
-        }
-    }
-    catch (err) {
-        res.status(200).send((0, createError_1.CreateError)(err));
-    }
-});
-exports.AddSongToList = AddSongToList;
-const RemoveSongFromList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = req.body;
-        const returnVal = yield firebaseService_1.default.removeSongFromList(data.clubId, data.song);
-        if ((0, createError_1.instanceOfError)(returnVal)) {
-            res.status(200).send({ success: false, error: returnVal });
-        }
-        else {
-            res.status(200).send({ success: true });
-        }
-    }
-    catch (err) {
-        res.status(200).send((0, createError_1.CreateError)(err));
-    }
-});
-exports.RemoveSongFromList = RemoveSongFromList;
-const RemoveSongFromSuggestedList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = req.body;
-        const returnVal = yield firebaseService_1.default.removeSuggestedSong(data.clubId, data.songId);
-        if ((0, createError_1.instanceOfError)(returnVal)) {
-            res.status(200).send({ success: false, error: returnVal });
-        }
-        else {
-            res.status(200).send({ success: true });
-        }
-    }
-    catch (err) {
-        res.status(200).send((0, createError_1.CreateError)(err));
-    }
-});
-exports.RemoveSongFromSuggestedList = RemoveSongFromSuggestedList;
 //# sourceMappingURL=suggestedSongsHandler.js.map

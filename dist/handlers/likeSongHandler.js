@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FetchLikedSongs = exports.LikeUnlikeSong = void 0;
+exports.FetchLikedSongs = exports.LikeSong = exports.UnlikeSong = exports.LikeUnlikeSong = void 0;
 const firebaseService_1 = __importDefault(require("../services/firebaseService"));
 const createError_1 = require("../utils/createError");
 const LikeUnlikeSong = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside LikeUnlikeSong');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.likeUnlikeSong(data.userId, data.song);
         if ((0, createError_1.instanceOfError)(returnVal)) {
@@ -31,8 +32,43 @@ const LikeUnlikeSong = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.LikeUnlikeSong = LikeUnlikeSong;
+const UnlikeSong = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('inside LikeUnlikeSong');
+        const data = req.body;
+        const returnVal = yield firebaseService_1.default.unLikeSong(data.userId, data.song);
+        if ((0, createError_1.instanceOfError)(returnVal)) {
+            res.status(200).send({ success: false, error: returnVal });
+        }
+        else {
+            res.status(200).send({ success: true });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.UnlikeSong = UnlikeSong;
+const LikeSong = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        console.log('inside LikeUnlikeSong');
+        const data = req.body;
+        const returnVal = yield firebaseService_1.default.likeSong(data.userId, data.song);
+        if ((0, createError_1.instanceOfError)(returnVal)) {
+            res.status(200).send({ success: false, error: returnVal });
+        }
+        else {
+            res.status(200).send({ success: true });
+        }
+    }
+    catch (err) {
+        res.status(200).send((0, createError_1.CreateError)(err));
+    }
+});
+exports.LikeSong = LikeSong;
 const FetchLikedSongs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchLikedSongs');
         const data = req.query;
         const returnVal = yield firebaseService_1.default.fetchLikedSongs(data.userId);
         if (Array.isArray(returnVal)) {

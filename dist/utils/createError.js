@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.instanceOfError = exports.CreateError = void 0;
 const CreateError = (error) => {
+    console.error(error);
     return {
         success: false,
         message: error.message,

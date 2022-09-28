@@ -9,5 +9,6 @@ export const Tables ={
     nested_club_suggested_song:'Nested_club',
     authorised_user:'Authorised_user',
     likedSongs:'LikedSongs',
-    nestedLikedSongs:'Songs'
+    nestedLikedSongs:'Songs',
+    nestedUserClubSuggestedSong:'Nested_user_song'
 }

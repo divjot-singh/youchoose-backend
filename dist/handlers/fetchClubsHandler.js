@@ -18,6 +18,7 @@ const firebaseService_1 = __importDefault(require("../services/firebaseService")
 const createError_1 = require("../utils/createError");
 const FetchClubsHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside FetchClubsHandler');
         const clubs = yield firebaseService_1.default.fetchClubs();
         res.status(200).send({ success: true, data: clubs });
     }
@@ -28,6 +29,7 @@ const FetchClubsHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.FetchClubsHandler = FetchClubsHandler;
 const DeleteClubHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside DeleteClubHandler');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.deleteClub(data.clubId, data.email);
         if (!returnVal) {
@@ -44,6 +46,7 @@ const DeleteClubHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.DeleteClubHandler = DeleteClubHandler;
 const UpdateClubHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside UpdateClubHandler');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.updateClub(data.club, data.oldEmail);
         if (!returnVal) {
@@ -60,6 +63,7 @@ const UpdateClubHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 exports.UpdateClubHandler = UpdateClubHandler;
 const AddNewClub = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log('inside AddNewClub');
         const data = req.body;
         const returnVal = yield firebaseService_1.default.addClub(data.clubName, data.email);
         if ((0, clubs_1.instanceOfClub)(returnVal)) {
