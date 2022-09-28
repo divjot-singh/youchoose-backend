@@ -21,7 +21,8 @@ export interface FetchUserSuggestedClubSongsHandlerBody{
 }
 export interface RemoveUserSuggestedSongHandlerBody{
     clubId:string;
-    docId?:string;
+    songId:string;
+    userId:string;
 }
 export interface SuggestedSongsQueryParams{
     clubId:string;
@@ -29,6 +30,12 @@ export interface SuggestedSongsQueryParams{
 export interface AddSongToListBody{
     song:Song;
     clubId:string;
+    userId:string;
+}
+export interface RemoveSongToListBody{
+    songId:string;
+    clubId:string;
+    userId:string;
 }
 
 export interface RemoveSongFromListBody{

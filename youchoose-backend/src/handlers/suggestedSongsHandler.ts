@@ -1,25 +1,8 @@
 import {  Request, Response, NextFunction} from 'express';
 import Song from '../entities/song';
-import { AddSongToListBody, AddSuggestedSongsHandlerBody, FetchClubSongsHandlerBody, FetchUserSuggestedClubSongsHandlerBody, RemoveSongFromListBody, RemoveUserSuggestedSongHandlerBody, SuggestedSongsQueryParams } from '../entities/postBodyEntities';
+import { AddSongToListBody, FetchClubSongsHandlerBody, FetchUserSuggestedClubSongsHandlerBody, RemoveSongToListBody, RemoveUserSuggestedSongHandlerBody } from '../entities/postBodyEntities';
 import FirebaseService from '../services/firebaseService';
 import { CreateError, instanceOfError } from '../utils/createError';
-import qs from 'qs'
-
-
-export const AddSuggestedSongsHandler = async (req:Request<any, any, AddSuggestedSongsHandlerBody,any>, res:Response, next:NextFunction) => {
-    try{
-        console.log('inside AddSuggestedSongsHandler')
-        const data:AddSuggestedSongsHandlerBody = req.body
-        const returnVal: string | Error = await FirebaseService.addSuggestedSongToClub(data)
-        if(instanceOfError(returnVal)){
-            res.status(200).send({success:false, error:returnVal})
-        } else{
-            res.status(200).send({success:true, data:{docId:returnVal}})
-        }
-    } catch(err){
-        res.status(200).send(CreateError(err))
-    }
-}
 
 export const FetchClubSongs = async(req:Request<any, any, any,FetchClubSongsHandlerBody>, res:Response, next:NextFunction) => {
     try{
@@ -35,6 +18,55 @@ export const FetchClubSongs = async(req:Request<any, any, any,FetchClubSongsHand
         res.status(200).send(CreateError(err))
     }
 }
+
+
+
+export const AddSongToList = async(req:Request<any, any, AddSongToListBody, any>, res:Response, next:NextFunction) => {
+    try{
+        console.log('inside AddSongToList')
+        const data:AddSongToListBody = req.body
+        const songLikes: number | Error = await FirebaseService.addSongToList(data.clubId, data.song, data.userId)
+        if(instanceOfError(songLikes)){
+            res.status(200).send({success:false, error:songLikes})
+        } else{
+            res.status(200).send({success:true, data:{likes:songLikes}})
+        }
+    } catch(err){
+        res.status(200).send(CreateError(err))
+    }
+}
+
+export const RemoveUserSuggestedSongFromList = async(req:Request<any, any, RemoveSongToListBody, any>, res:Response, next:NextFunction) => {
+    try{
+        console.log('inside RemoveUserSuggestedSongFromList')
+        const data:RemoveSongToListBody = req.body
+        const returnVal: number | Error = await FirebaseService.removeUserSuggestedSong(data.clubId, data.songId, data.userId)
+        if(instanceOfError(returnVal)){
+            res.status(200).send({success:false, error:returnVal})
+        } else{
+            res.status(200).send({success:true, data:{likes:returnVal}})
+        }
+    } catch(err){
+        res.status(200).send(CreateError(err))
+    }
+}
+
+export const RemoveSongFromList = async(req:Request<any, any, RemoveSongToListBody, any>, res:Response, next:NextFunction) => {
+    try{
+        console.log('inside RemoveSongFromList')
+        const data:RemoveSongToListBody = req.body
+        const returnVal: void | Error = await FirebaseService.removeSongFromList(data.clubId, data.songId)
+        if(instanceOfError(returnVal)){
+            res.status(200).send({success:false, error:returnVal})
+        } else{
+            res.status(200).send({success:true})
+        }
+    } catch(err){
+        res.status(200).send(CreateError(err))
+    }
+}
+
+
 
 export const FetchUserSuggestedSongs = async(req:Request<any, any, any,FetchUserSuggestedClubSongsHandlerBody>, res:Response, next:NextFunction) => {
     try{
@@ -55,70 +87,11 @@ export const RemoveUserSuggestedSong = async(req:Request<any, any, RemoveUserSug
     try{
         console.log('inside RemoveUserSuggestedSong')
         const data:RemoveUserSuggestedSongHandlerBody = req.body
-        const returnVal: void | Error = await FirebaseService.removeUserSuggestedSong(data.clubId, data.docId)
-        if(returnVal){
-            res.status(200).send({success:false, error:returnVal})
-        } else{
-            res.status(200).send({success:true})
-        }
-    } catch(err){
-        res.status(200).send(CreateError(err))
-    }
-}
-
-export const FetchSuggestedSongsList = async(req:Request<any, any, any, SuggestedSongsQueryParams>, res:Response, next:NextFunction) => {
-    try{
-        console.log('inside FetchSuggestedSongsList')
-        const data:SuggestedSongsQueryParams = req.query
-        const songsList: Song[] | Error = await FirebaseService.getSuggestedSongs(data.clubId)
-        if(Array.isArray(songsList)){
-            res.status(200).send({success:true, data:songsList})
-        } else{
-            res.status(200).send({success:false})
-        }
-    } catch(err){
-        res.status(200).send(CreateError(err))
-    }
-}
-
-export const AddSongToList = async(req:Request<any, any, AddSongToListBody, any>, res:Response, next:NextFunction) => {
-    try{
-        console.log('inside AddSongToList')
-        const data:AddSongToListBody = req.body
-        const songDocId: string | Error = await FirebaseService.addSongToList(data.clubId, data.song)
-        if(instanceOfError(songDocId)){
-            res.status(200).send({success:false, error:songDocId})
-        } else{
-            res.status(200).send({success:true, data:{docId:songDocId}})
-        }
-    } catch(err){
-        res.status(200).send(CreateError(err))
-    }
-}
-export const RemoveSongFromList = async(req:Request<any, any, AddSongToListBody, any>, res:Response, next:NextFunction) => {
-    try{
-        console.log('inside RemoveSongFromList')
-        const data:AddSongToListBody = req.body
-        const returnVal: void | Error = await FirebaseService.removeSongFromList(data.clubId, data.song)
+        const returnVal: number | Error = await FirebaseService.removeUserSuggestedSong(data.clubId, data.songId, data.userId)
         if(instanceOfError(returnVal)){
             res.status(200).send({success:false, error:returnVal})
         } else{
-            res.status(200).send({success:true})
-        }
-    } catch(err){
-        res.status(200).send(CreateError(err))
-    }
-}
-
-export const RemoveSongFromSuggestedList = async(req:Request<any, any,RemoveSongFromListBody, any>, res:Response, next:NextFunction ) => {
-    try{
-        console.log('inside RemoveSongFromSuggestedList')
-        const data:RemoveSongFromListBody = req.body
-        const returnVal: void | Error = await FirebaseService.removeSuggestedSong(data.clubId, data.songId)
-        if(instanceOfError(returnVal)){
-            res.status(200).send({success:false, error:returnVal})
-        } else{
-            res.status(200).send({success:true})
+            res.status(200).send({success:true, data:{likes:returnVal}})
         }
     } catch(err){
         res.status(200).send(CreateError(err))

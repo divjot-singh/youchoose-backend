@@ -6,9 +6,7 @@ import { Tables } from '../utils/tableEntities';
 import serviceAccount from './service-account.json';
 import User, { AuthorisedUser, getUserFromSnapshot, UserType } from '../entities/user';
 import Club, { getClubFromMap } from '../entities/clubs';
-import { AddSuggestedSongsHandlerBody, SongEntityAtClub } from '../entities/postBodyEntities';
 import Song, { getSongFromMap } from '../entities/song';
-import { getUniqueSongs } from '../utils/common_utils';
 
 class FirebaseService{
     private static db:FirebaseFirestore.Firestore;
@@ -41,21 +39,6 @@ class FirebaseService{
             return CreateError(err)
         }
     }
-    static async addSuggestedSongToClub(songData:AddSuggestedSongsHandlerBody): Promise<string | Error>{
-        try{
-            console.log('inside addSuggestedSongToClub')
-            const dataAtDoc:SongEntityAtClub = {
-                song:songData.song,
-            }
-            if(songData?.userId){
-                dataAtDoc.userId = songData.userId
-            }
-            const res = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(songData.clubId).collection(Tables.nested_club_suggested_song).add(dataAtDoc);
-            return res.id
-        }catch(err){
-            return CreateError(err)
-        }
-    }
     static async isSongLiked(userId:string, songId:string):Promise<boolean>{
         try{
             console.log('inside isSongLiked')
@@ -68,6 +51,28 @@ class FirebaseService{
         } catch(err){
             console.error(err)
             return false
+        }
+    }
+    static async likeSong(userId:string, song:Song):Promise<void | Error>{
+        try{
+            console.log('inside likeSong')
+            const isSongLiked = await FirebaseService.isSongLiked(userId, song.videoId)
+            if(!isSongLiked){
+                await FirebaseService.db.collection(Tables.likedSongs).doc(userId).collection(Tables.nestedLikedSongs).doc(song.videoId).set(song);
+            }
+        }catch(err){
+            return CreateError(err)
+        }
+    }
+    static async unLikeSong(userId:string, song:Song):Promise<void | Error>{
+        try{
+            console.log('inside unLikeSong')
+            const isSongLiked = await FirebaseService.isSongLiked(userId, song.videoId)
+            if(isSongLiked){
+                await FirebaseService.db.collection(Tables.likedSongs).doc(userId).collection(Tables.nestedLikedSongs).doc(song.videoId).delete();
+            }
+        }catch(err){
+            return CreateError(err)
         }
     }
     static async likeUnlikeSong(userId:string, song:Song):Promise<void | Error>{
@@ -118,14 +123,15 @@ class FirebaseService{
             const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get()
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
-                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = ''} = data || {}
+                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0} = data || {}
                 return {
                     title,
                     etag,
                     videoId,
                     channelTitle,
                     channelId,
-                    imageUrl
+                    imageUrl,
+                    likes
                 }
             })
             return songs;
@@ -136,11 +142,11 @@ class FirebaseService{
     static async fetchUserSuggestedClubSongs(clubId:string, userId:string): Promise<Song[] | Error>{
         try{
             console.log('inside fetchUserSuggestedClubSongs')
-            const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where('userId', "==", userId).get();
+            const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(userId).collection(Tables.nestedUserClubSuggestedSong).get()
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
                 const song = data.song
-                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = ''} = song || {}
+                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0} = song || {}
                 return {
                     title,
                     etag,
@@ -148,7 +154,8 @@ class FirebaseService{
                     channelTitle,
                     channelId,
                     imageUrl,
-                    docId: doc.id
+                    docId: doc.id,
+                    likes
                 }
             })
             return songs;
@@ -156,90 +163,76 @@ class FirebaseService{
             return CreateError(err)
         }
     }
-    static async getSuggestedSongs(clubId:string): Promise<Song[] | Error>{
+    static async updateIfSongIsAdded(clubId:string, song:Song):Promise<number>{
         try{
-            console.log('inside getSuggestedSongs')
-            const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get();
-            const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
-                const data = doc.data()
-                const song = data.song
-                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = ''} = song || {}
-                return {
-                    title,
-                    etag,
-                    videoId,
-                    channelTitle,
-                    channelId,
-                    imageUrl,
-                    docId: doc.id
-                }
-            })
-            return getUniqueSongs(songs);
-        }catch(err){
-            return CreateError(err)
-        }
-    }
-    static async checkIfSongIsAdded(clubId:string, song:Song):Promise<string|Error>{
-        try{
-            console.log('inside checkIfSongIsAdded')
-            const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get()
-            if(data.docs.length){
-                return data.docs[0].id
+            console.log('inside updateIfSongIsAdded')
+            const doc:FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(song.videoId).get()
+            if(doc.exists){
+                let docData = doc.data()
+                let likes:number = parseInt(docData['likes'] ?? 0)
+                await doc.ref.update({"likes": likes+1}) 
+                return likes + 1
             } else{
-                return
+                return 0
             }
         } catch(err){
-            return CreateError(err)
+            return 0
         }
     }
-    static async addSongToList(clubId:string, song:Song):Promise<string|Error>{
+    static async addSongToList(clubId:string, song:Song, userId:string):Promise<number|Error>{
         try{
             console.log('inside addSongToList')
-            const isSongAdded:string | Error = await FirebaseService.checkIfSongIsAdded(clubId, song);
-            if(typeof isSongAdded === 'string'){
-                return isSongAdded
-            } else{
-                const res = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).add(song);
-                return res.id
+            const songLikes:number = await FirebaseService.updateIfSongIsAdded(clubId, song);
+            if(songLikes < 1){
+                const songToAdd:Song = {...song, likes:1}
+                console.log(`song to add`, songToAdd)
+                await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(song.videoId).set(songToAdd);
             }
+            await FirebaseService.addSongToUserSuggestions(clubId, userId, song)
+            return songLikes === 0 ? 1 : songLikes  
         } catch(err){
             return CreateError(err)
         }
     }
-    static async removeSongFromList(clubId:string, song:Song):Promise<void|Error>{
+    static async addSongToUserSuggestions(clubId:string, userId:string, song:Song):Promise<void|Error>{
+        try{
+            console.log('addSongToUserSuggestions')
+            await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(userId).collection(Tables.nestedUserClubSuggestedSong).doc(song.videoId).set(song)
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    
+    static async removeSongFromList(clubId:string, songId:string):Promise<void|Error>{
         try{
             console.log('inside removeSongFromList')
-            const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get()
-            if(data.docs.length){
-                for(const doc of data.docs){
-                    await doc.ref.delete()
-                }
-            }
+            await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(songId).delete();
         } catch(err){
             return CreateError(err)
         }
     }
-    static async removeUserSuggestedSong(clubId:string, docId:string): Promise<void | Error>{
+    static async removeUserSuggestedSong(clubId:string, songId:string, userId:string): Promise<number | Error>{
         try{
             console.log('inside removeUserSuggestedSong')
-            await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(docId).delete()
-        } catch(err){
-            return CreateError(err)
-        }
-    }
-    static async removeSuggestedSong(clubId:string, songId:string): Promise<void | Error>{
-        try{
-            console.log('inside removeSuggestedSong')
-            const data:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> =  await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get()
-            if(data.docs.length){
-                for(const doc of data.docs){
-                    const docData = doc.data()
-                    const song = docData.song
-                    if(song && song.videoId === songId){
-                        await doc.ref.delete()
-                    }
+            console.log(clubId)
+            console.log(songId)
+            console.log(userId)
+            await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(userId).collection(Tables.nestedUserClubSuggestedSong).doc(songId).delete()
+            const doc:FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(songId).get()
+            if(doc.exists){
+                let docData = doc.data()
+                let likes:number = parseInt(docData['likes'] ?? 1)
+                if(likes <= 1){
+                    await doc.ref.delete()
+                    return 0
+                } else{
+                    await doc.ref.update({
+                        'likes':likes - 1
+                    })
+                    return likes - 1
                 }
             }
+            return 0
         } catch(err){
             return CreateError(err)
         }

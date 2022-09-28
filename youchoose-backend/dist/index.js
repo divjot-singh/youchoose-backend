@@ -60,12 +60,9 @@ const service = new firebaseService_1.default();
 app.set('port', (process.env.PORT || 8080));
 router.post(api_endpoints_1.default.register, registerUserHandler_1.RegisterUserHandler);
 router.get(api_endpoints_1.default.fetchClubs, fetchClubsHandler_1.FetchClubsHandler);
-router.post(api_endpoints_1.default.addSuggestedSong, suggestedSongsHandler_1.AddSuggestedSongsHandler);
 router.get(api_endpoints_1.default.userSuggestedSong, suggestedSongsHandler_1.FetchUserSuggestedSongs);
-router.get(api_endpoints_1.default.suggestedSongsList, suggestedSongsHandler_1.FetchSuggestedSongsList);
 router.get(api_endpoints_1.default.clubSongs, suggestedSongsHandler_1.FetchClubSongs);
 router.post(api_endpoints_1.default.removeSuggestedSong, suggestedSongsHandler_1.RemoveUserSuggestedSong);
-router.post(api_endpoints_1.default.removeSongsFromSuggestion, suggestedSongsHandler_1.RemoveSongFromSuggestedList);
 router.post(api_endpoints_1.default.addSongToList, suggestedSongsHandler_1.AddSongToList);
 router.post(api_endpoints_1.default.removeSongFromList, suggestedSongsHandler_1.RemoveSongFromList);
 router.post(api_endpoints_1.default.likeUnlikeSong, likeSongHandler_1.LikeUnlikeSong);
@@ -76,6 +73,8 @@ router.post(api_endpoints_1.default.deleteClub, fetchClubsHandler_1.DeleteClubHa
 router.post(api_endpoints_1.default.addModerator, registerUserHandler_1.AddModerator);
 router.post(api_endpoints_1.default.addClub, fetchClubsHandler_1.AddNewClub);
 router.post(api_endpoints_1.default.deleteMod, registerUserHandler_1.DeleteModerator);
+router.post(api_endpoints_1.default.likeSong, likeSongHandler_1.LikeSong);
+router.post(api_endpoints_1.default.unlikeSong, likeSongHandler_1.UnlikeSong);
 app.listen(app.get('port'), () => {
     console.log(`Server started on port ${app.get('port')}`);
 });

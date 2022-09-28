@@ -21,7 +21,6 @@ const service_account_json_1 = __importDefault(require("./service-account.json")
 const user_1 = require("../entities/user");
 const clubs_1 = require("../entities/clubs");
 const song_1 = require("../entities/song");
-const common_utils_1 = require("../utils/common_utils");
 class FirebaseService {
     constructor() {
         try {
@@ -54,24 +53,6 @@ class FirebaseService {
             }
         });
     }
-    static addSuggestedSongToClub(songData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log('inside addSuggestedSongToClub');
-                const dataAtDoc = {
-                    song: songData.song,
-                };
-                if (songData === null || songData === void 0 ? void 0 : songData.userId) {
-                    dataAtDoc.userId = songData.userId;
-                }
-                const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(songData.clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).add(dataAtDoc);
-                return res.id;
-            }
-            catch (err) {
-                return (0, createError_1.CreateError)(err);
-            }
-        });
-    }
     static isSongLiked(userId, songId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -87,6 +68,34 @@ class FirebaseService {
             catch (err) {
                 console.error(err);
                 return false;
+            }
+        });
+    }
+    static likeSong(userId, song) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('inside likeSong');
+                const isSongLiked = yield FirebaseService.isSongLiked(userId, song.videoId);
+                if (!isSongLiked) {
+                    yield FirebaseService.db.collection(tableEntities_1.Tables.likedSongs).doc(userId).collection(tableEntities_1.Tables.nestedLikedSongs).doc(song.videoId).set(song);
+                }
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static unLikeSong(userId, song) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('inside unLikeSong');
+                const isSongLiked = yield FirebaseService.isSongLiked(userId, song.videoId);
+                if (isSongLiked) {
+                    yield FirebaseService.db.collection(tableEntities_1.Tables.likedSongs).doc(userId).collection(tableEntities_1.Tables.nestedLikedSongs).doc(song.videoId).delete();
+                }
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
             }
         });
     }
@@ -149,14 +158,15 @@ class FirebaseService {
                 const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).get();
                 const songs = res.docs.map((doc) => {
                     const data = doc.data();
-                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '' } = data || {};
+                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0 } = data || {};
                     return {
                         title,
                         etag,
                         videoId,
                         channelTitle,
                         channelId,
-                        imageUrl
+                        imageUrl,
+                        likes
                     };
                 });
                 return songs;
@@ -170,11 +180,11 @@ class FirebaseService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('inside fetchUserSuggestedClubSongs');
-                const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).where('userId', "==", userId).get();
+                const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(userId).collection(tableEntities_1.Tables.nestedUserClubSuggestedSong).get();
                 const songs = res.docs.map((doc) => {
                     const data = doc.data();
                     const song = data.song;
-                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '' } = song || {};
+                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0 } = song || {};
                     return {
                         title,
                         etag,
@@ -182,7 +192,8 @@ class FirebaseService {
                         channelTitle,
                         channelId,
                         imageUrl,
-                        docId: doc.id
+                        docId: doc.id,
+                        likes
                     };
                 });
                 return songs;
@@ -192,108 +203,92 @@ class FirebaseService {
             }
         });
     }
-    static getSuggestedSongs(clubId) {
+    static updateIfSongIsAdded(clubId, song) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log('inside getSuggestedSongs');
-                const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).get();
-                const songs = res.docs.map((doc) => {
-                    const data = doc.data();
-                    const song = data.song;
-                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '' } = song || {};
-                    return {
-                        title,
-                        etag,
-                        videoId,
-                        channelTitle,
-                        channelId,
-                        imageUrl,
-                        docId: doc.id
-                    };
-                });
-                return (0, common_utils_1.getUniqueSongs)(songs);
-            }
-            catch (err) {
-                return (0, createError_1.CreateError)(err);
-            }
-        });
-    }
-    static checkIfSongIsAdded(clubId, song) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log('inside checkIfSongIsAdded');
-                const data = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get();
-                if (data.docs.length) {
-                    return data.docs[0].id;
+                console.log('inside updateIfSongIsAdded');
+                const doc = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(song.videoId).get();
+                if (doc.exists) {
+                    let docData = doc.data();
+                    let likes = parseInt((_a = docData['likes']) !== null && _a !== void 0 ? _a : 0);
+                    yield doc.ref.update({ "likes": likes + 1 });
+                    return likes + 1;
                 }
                 else {
-                    return;
+                    return 0;
                 }
             }
             catch (err) {
-                return (0, createError_1.CreateError)(err);
+                return 0;
             }
         });
     }
-    static addSongToList(clubId, song) {
+    static addSongToList(clubId, song, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('inside addSongToList');
-                const isSongAdded = yield FirebaseService.checkIfSongIsAdded(clubId, song);
-                if (typeof isSongAdded === 'string') {
-                    return isSongAdded;
+                const songLikes = yield FirebaseService.updateIfSongIsAdded(clubId, song);
+                if (songLikes < 1) {
+                    const songToAdd = Object.assign(Object.assign({}, song), { likes: 1 });
+                    console.log(`song to add`, songToAdd);
+                    yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(song.videoId).set(songToAdd);
                 }
-                else {
-                    const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).add(song);
-                    return res.id;
-                }
+                yield FirebaseService.addSongToUserSuggestions(clubId, userId, song);
+                return songLikes === 0 ? 1 : songLikes;
             }
             catch (err) {
                 return (0, createError_1.CreateError)(err);
             }
         });
     }
-    static removeSongFromList(clubId, song) {
+    static addSongToUserSuggestions(clubId, userId, song) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('addSongToUserSuggestions');
+                yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(userId).collection(tableEntities_1.Tables.nestedUserClubSuggestedSong).doc(song.videoId).set(song);
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
+    static removeSongFromList(clubId, songId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('inside removeSongFromList');
-                const data = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).where("videoId", "==", song.videoId).get();
-                if (data.docs.length) {
-                    for (const doc of data.docs) {
-                        yield doc.ref.delete();
-                    }
-                }
+                yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(songId).delete();
             }
             catch (err) {
                 return (0, createError_1.CreateError)(err);
             }
         });
     }
-    static removeUserSuggestedSong(clubId, docId) {
+    static removeUserSuggestedSong(clubId, songId, userId) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('inside removeUserSuggestedSong');
-                yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(docId).delete();
-            }
-            catch (err) {
-                return (0, createError_1.CreateError)(err);
-            }
-        });
-    }
-    static removeSuggestedSong(clubId, songId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log('inside removeSuggestedSong');
-                const data = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).get();
-                if (data.docs.length) {
-                    for (const doc of data.docs) {
-                        const docData = doc.data();
-                        const song = docData.song;
-                        if (song && song.videoId === songId) {
-                            yield doc.ref.delete();
-                        }
+                console.log(clubId);
+                console.log(songId);
+                console.log(userId);
+                yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(userId).collection(tableEntities_1.Tables.nestedUserClubSuggestedSong).doc(songId).delete();
+                const doc = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(songId).get();
+                if (doc.exists) {
+                    let docData = doc.data();
+                    let likes = parseInt((_a = docData['likes']) !== null && _a !== void 0 ? _a : 1);
+                    if (likes <= 1) {
+                        yield doc.ref.delete();
+                        return 0;
+                    }
+                    else {
+                        yield doc.ref.update({
+                            'likes': likes - 1
+                        });
+                        return likes - 1;
                     }
                 }
+                return 0;
             }
             catch (err) {
                 return (0, createError_1.CreateError)(err);

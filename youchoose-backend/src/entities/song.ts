@@ -6,17 +6,19 @@ export default interface Song{
     channelId:string;
     imageUrl:string;
     docId?:string;
+    likes:number;
 }
 
 export const getSongFromMap = (data:any):Song => {
-    const {title = '', etag = '', videoId = '', channelId = '', channelTitle = '', imageUrl = ''} = data || {}
+    const {title = '', etag = '', videoId = '', channelId = '', channelTitle = '', imageUrl = '', likes=0} = data || {}
     const song:Song={
         title,
         channelId,
         channelTitle,
         videoId,
         imageUrl,
-        etag
+        etag,
+        likes
     }
     return song;
 }
