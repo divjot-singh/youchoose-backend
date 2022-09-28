@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { MouseEventHandler } from 'react'
 import Song from '../../entities/song'
 import { useAuth } from '../../providers/userProvider'
 import './index.scss'
@@ -8,87 +8,115 @@ import { API_ENDPOINTS } from '../../utils/apiEndpoints';
 import { useClub } from '../../providers/clubProvider';
 import { useCommonComponents } from '../../providers/commonComponentsProvider';
 import { SnackbarTypes } from '../snackbar';
-import { useAddedSongs } from '../../providers/addedSongsProvider';
+import { useSuggestedSongs } from '../../providers/addedSongsProvider';
 import { UserType } from '../../entities/user';
 import { useLikedSongs } from '../../providers/likedSongsProvider';
 
-const SongItem = ({song, onSongAddition, canUserRemoveSong=true}:{song:Song, onSongAddition?:(song:Song) => void, canUserRemoveSong?:boolean}) => {
+
+export const enum SongItemPages{
+    MY_SONGS = 'my_songs',
+    SONGS_LIST = 'songs_list',
+    SONG_SEARCH = 'song_search'
+}
+
+const LikeComponent = ({likes, isLiked, onClick}:{likes?:number, isLiked:boolean, onClick?:MouseEventHandler<HTMLSpanElement>}) => {
+    return (
+        <span className={`like-component ${isLiked ? 'liked' : ''}`} onClick={onClick}>
+            <FaHeart color={isLiked ? 'red' :'white'} size={25}/>
+            {likes ? <span className='like-count'>{likes}</span> : ''}
+        </span>
+    )
+}
+
+const SongItem = ({song, pageType}:{song:Song, pageType:SongItemPages}) => {
     const {user} = useAuth()
-    const {club, addedSongs, updateAddedSongs, removeAddedSong} = useClub()
+    const {club, clubSongsList, updateClubSongs} = useClub()
     const {likedSongs, addLikedSong, removeLikedSong} = useLikedSongs()
-    const {songs, updateSongs} = useAddedSongs()
     const {showSnackbar} = useCommonComponents()
-    const addedSongIndex = addedSongs.findIndex((userSuggestedSong) => userSuggestedSong.videoId === song.videoId )
-    const isSongRemovable:boolean = addedSongIndex > -1 && canUserRemoveSong
-    const isSongAdded:boolean = songs.findIndex((userAddedSong) => userAddedSong.videoId === song.videoId ) > -1 || isSongRemovable
+    const {userSuggestedSongs,updateUserSuggestedSongs} = useSuggestedSongs()
+    const isUserSuggestedSong = userSuggestedSongs.findIndex(userSuggestedSong => userSuggestedSong.videoId === song.videoId) > -1
+    const isSongAdded:boolean = clubSongsList.findIndex((userAddedSong => userAddedSong.videoId === song.videoId)) > -1 && isUserSuggestedSong
     const isLiked = likedSongs.findIndex((userLikedSong:Song) => userLikedSong.videoId === song.videoId) > -1
-    const addSuggestedSong = async () => {
-        if(!club?.clubId){
-            showSnackbar({
-                children:<span>No club selected. Please go back and select a club</span>,
-                type: SnackbarTypes.ERROR
-            })
-            return;
-        };
+    console.log('isUserSiggested', userSuggestedSongs)
+    console.log(isUserSuggestedSong)
+    const unlikeSong = async () => {
         try{
-            const data = await NetworkService.post({
-                url:API_ENDPOINTS.addSuggestedSong,
+            let data = await NetworkService.post({
+                url:API_ENDPOINTS.unlikeSong,
                 data:{
-                    userId:user?.uid,
-                    clubId:club?.clubId,
-                    song:song
+                    song:song,
+                    userId:user?.uid
                 }
             })
-            if(data && data['docId']){
-                updateAddedSongs({...song, docId:data['docId']})
+            if(data && data['error']){
+                console.error(data)
                 showSnackbar({
-                    children:<span>Song added</span>,
-                    type:SnackbarTypes.SUCCESS
-                })
-            } else {
-                showSnackbar({
-                    children:<span>Could not add song.</span>,
+                    children:<span>Could not unlike song.</span>,
                     type:SnackbarTypes.ERROR
                 })
+            } else{
+                removeLikedSong(song)
             }
         } catch(err){
             console.error(err)
-            showSnackbar({
-                children:<span>Could not add song.</span>,
-                type:SnackbarTypes.ERROR
-            })
+                showSnackbar({
+                    children:<span>Could not unlike song.</span>,
+                    type:SnackbarTypes.ERROR
+                })
         }
-        
+    }
+    const likeSong = async () => {
+        try{
+            let data = await NetworkService.post({
+                url:API_ENDPOINTS.likeSong,
+                data:{
+                    song:song,
+                    userId:user?.uid
+                }
+            })
+            if(data && data['error']){
+                console.error(data)
+                showSnackbar({
+                    children:<span>Could not like song.</span>,
+                    type:SnackbarTypes.ERROR
+                })
+            } else{
+                addLikedSong(song)
+            }
+        } catch(err){
+            console.error(err)
+                showSnackbar({
+                    children:<span>Could not like song.</span>,
+                    type:SnackbarTypes.ERROR
+                })
+        }
     }
     const removeSuggestedSong = async () => {
         try{
-            const removableSong:Song = addedSongs[addedSongIndex]
-            if(removableSong && removableSong?.docId){
-                const data = await NetworkService.post({
-                    url:API_ENDPOINTS.removeSuggestedSong,
-                    data:{
-                        clubId:club?.clubId,
-                        docId:removableSong.docId
-                    }
-                })
-                console.log(data)
-                if(data && Object.hasOwn(data, 'error')){
-                    showSnackbar({
-                        children:<span>Could not remove song.</span>,
-                        type:SnackbarTypes.ERROR
-                    })
-                } else{
-                    showSnackbar({
-                        children:<span>Song removed.</span>,
-                        type:SnackbarTypes.SUCCESS
-                    })
-                    removeAddedSong(removableSong.docId)
+            const data = await NetworkService.post({
+                url:API_ENDPOINTS.removeSuggestedSong,
+                data:{
+                    clubId:club?.clubId,
+                    songId:song.videoId,
+                    userId:user?.uid
                 }
-            } else{
+            })
+            unlikeSong()
+            console.log(data)
+            if(data && data['error']){
                 showSnackbar({
                     children:<span>Could not remove song.</span>,
                     type:SnackbarTypes.ERROR
                 })
+            } else{
+                showSnackbar({
+                    children:<span>Song removed.</span>,
+                    type:SnackbarTypes.SUCCESS
+                })
+                let updatedSong = {...song, likes:data['likes']}
+                updateClubSongs(updatedSong)
+                updateUserSuggestedSongs(userSuggestedSongs.filter(clubSong => clubSong.videoId !== song.videoId))
+
             }
         } catch(err){
             console.error(err)
@@ -107,23 +135,37 @@ const SongItem = ({song, onSongAddition, canUserRemoveSong=true}:{song:Song, onS
             return;
         };
         try{
+            console.log(user)
             const data = await NetworkService.post({
                 url:API_ENDPOINTS.addSongToList,
                 data:{
                     clubId:club?.clubId,
-                    song:song
+                    song:song,
+                    userId:user?.uid
                 }
             })
-            if(onSongAddition) onSongAddition(song)
-            if(data && data['docId']){
-                showSnackbar({
-                    children:<span>Song added</span>,
-                    type:SnackbarTypes.SUCCESS
-                })
-            } else {
+            await NetworkService.post({
+                url:API_ENDPOINTS.likeSong,
+                data:{
+                    song:song,
+                    userId:user?.uid
+                }
+            })
+            console.log('updating')
+            let updatedSong = {...song, likes:data['likes']}
+            console.log(updatedSong)
+            updateClubSongs(updatedSong)
+            addLikedSong(updatedSong)
+            updateUserSuggestedSongs([...userSuggestedSongs, updatedSong])
+            if(data && data['error']){
                 showSnackbar({
                     children:<span>Could not add song.</span>,
                     type:SnackbarTypes.ERROR
+                })
+            } else {
+                showSnackbar({
+                    children:<span>Song added</span>,
+                    type:SnackbarTypes.SUCCESS
                 })
             }
         } catch(err){
@@ -134,6 +176,7 @@ const SongItem = ({song, onSongAddition, canUserRemoveSong=true}:{song:Song, onS
             })
         }
     }
+
     const removeSongFromList = async () => {
         if(!club?.clubId){
             showSnackbar({
@@ -147,9 +190,11 @@ const SongItem = ({song, onSongAddition, canUserRemoveSong=true}:{song:Song, onS
                 url:API_ENDPOINTS.removeSongFromList,
                 data:{
                     clubId:club?.clubId,
-                    song:song
+                    songId:song.videoId,
+                    userId:user?.uid
                 }
             })
+            unlikeSong()
             if(data && data['error']){
                 showSnackbar({
                     children:<span>Could not remove song.</span>,
@@ -157,7 +202,7 @@ const SongItem = ({song, onSongAddition, canUserRemoveSong=true}:{song:Song, onS
                 })
                 
             } else {
-                updateSongs(songs.filter((addedSong:Song) => addedSong.videoId !== song.videoId))
+                updateClubSongs(clubSongsList.filter((addedSong:Song) => addedSong.videoId !== song.videoId))
                 showSnackbar({
                     children:<span>Song removed</span>,
                     type:SnackbarTypes.SUCCESS
@@ -171,55 +216,43 @@ const SongItem = ({song, onSongAddition, canUserRemoveSong=true}:{song:Song, onS
             })
         }
     }
-    const likeUnlikeSong = async () => {
-        if(!user) return
-        try{
-            let res = await NetworkService.post({
-                url:API_ENDPOINTS.likeUnlikeSong,
-                data:{
-                    userId:user?.uid,
-                    song:song
-                }
-            })
-            console.log(res)
-            if(res && res['error']){
-                console.error(res)
-                showSnackbar({
-                    children:<span>Something went wrong.</span>,
-                    type:SnackbarTypes.ERROR
-                })
-            } else{
-                if(isLiked){
-                    removeLikedSong(song)
-                } else {
-                    addLikedSong(song)
-                }
-            }
-        } catch(err){
-            console.error(err)
-            showSnackbar({
-                children:<span>Something went wrong.</span>,
-                type:SnackbarTypes.ERROR
-            })
+    const onLikeClick = () => {
+        if(isLiked){
+            removeSuggestedSong()
+        } else if(isUserSuggestedSong){
+            likeSong()
+        } else {
+            addSongToList()
         }
     }
     const getCtas = () => {
-        if(user?.user_type === UserType.DJ){
-            return <div className='ctas'>
-                {isSongAdded ? <span onClick={removeSongFromList}><FaMinusCircle color='white' size={20}  /></span> :<span onClick={addSongToList}><FaPlusCircle color='white' size={20}  /></span>}
-            </div>
+        if(pageType === SongItemPages.SONG_SEARCH){
+            return isSongAdded ? <span><FaCheckCircle color='white' size={20}  /></span> : <span onClick={addSongToList}><FaPlusCircle color='white' size={20}  /></span>
+        } else if(pageType === SongItemPages.SONGS_LIST){
+            if(user?.user_type === UserType.MODERATOR){
+                return (
+                    <>
+                        <LikeComponent likes={song.likes} isLiked={isLiked} />
+                        <span onClick={removeSongFromList}><FaMinusCircle color='white' size={20}  /></span>
+                    </>
+                )
+            } else{
+                return <LikeComponent likes={song.likes} isLiked={isLiked} onClick={onLikeClick} />
+            }
+        } else if(pageType === SongItemPages.MY_SONGS){
+            return (
+                    <>
+                        <LikeComponent isLiked={isLiked} onClick={unlikeSong}/>
+                    </>
+            )
         }
-        return (
-            <div className='ctas'>
-                {isSongAdded ? isSongRemovable ? <span onClick={removeSuggestedSong}><FaMinusCircle color='white' size={20}  /></span> : <span><FaCheckCircle color='white' size={20}  /></span>  : <span onClick={addSuggestedSong}><FaPlusCircle color='white' size={20}  /></span>}
-                {user && <span onClick={likeUnlikeSong}><FaHeart color={isLiked ? 'red' :'white'} size={20}  /> </span>}
-            </div>
-        )
     }
     return <div className='song-item'>
         <img src={song.imageUrl} alt="" />
         <p>{song.title}</p>
-        {getCtas()}
+        <div className='ctas'>
+            {getCtas()}
+        </div>
     </div>
 }
 

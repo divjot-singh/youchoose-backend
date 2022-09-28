@@ -7,6 +7,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { UserType } from '../../entities/user';
 import { RoutesKeys } from '../../utils/routes';
 import { useClub } from '../../providers/clubProvider';
+import { useLikedSongs } from '../../providers/likedSongsProvider';
+import { useSuggestedSongs } from '../../providers/addedSongsProvider';
 
 export interface MenuItem{
     name:string;
@@ -17,6 +19,8 @@ const Header = ({pageName, showBackButton = false}:{pageName:string, showBackBut
     const {user} = useAuth()
     const navigate = useNavigate()
     const {club} = useClub()
+    const {onSignOut} = useLikedSongs()
+    const {clearUserSuggestedSongs} = useSuggestedSongs()
     const location = useLocation()
     const goBack = () => {
         navigate(-1)
@@ -27,12 +31,14 @@ const Header = ({pageName, showBackButton = false}:{pageName:string, showBackBut
         let menuItems:MenuItem[] = [{
             name:'Log out',
             onClick:async () =>{
+                onSignOut()
+                clearUserSuggestedSongs()
                 await signOut()
                 navigate(RoutesKeys.LOGIN)
             }
         }]
         if(user?.user_type === UserType.USER){
-            if(location.pathname !== RoutesKeys.MY_SONGS) {
+            if(location.pathname !== RoutesKeys.MY_SONGS && user.email) {
                 menuItems.unshift({
                     name:'My Songs',
                     onClick:() => {
@@ -57,14 +63,6 @@ const Header = ({pageName, showBackButton = false}:{pageName:string, showBackBut
                 })
             }
         } else if(user?.user_type === UserType.DJ && user.club){
-            if(location.pathname !== RoutesKeys.SUGGESTED_SONG_LIST) {
-                menuItems.unshift({
-                    name:'Suggested songs',
-                    onClick:() => {
-                        navigate(RoutesKeys.SUGGESTED_SONG_LIST)
-                    }
-                })
-            } 
             if(location.pathname !== RoutesKeys.CLUB_SONG_LIST) {
                 menuItems.unshift({
                     name:'Songs list',

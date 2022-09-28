@@ -16,14 +16,16 @@ import { RoutesKeys } from '../../utils/routes'
 import { SnackbarTypes } from '../../components/snackbar'
 import { useAuth } from '../../providers/userProvider'
 import Song, { instanceOfSong } from '../../entities/song'
-import { useAddedSongs } from '../../providers/addedSongsProvider'
+import { useSuggestedSongs } from '../../providers/addedSongsProvider'
 import { UserType } from '../../entities/user'
+import { useLikedSongs } from '../../providers/likedSongsProvider'
 
 
 const SelectClub = () => {
     const [clubs, setClubs] = useState<Club[]>([])
     const {showLoader,hideLoader, showSnackbar} = useCommonComponents()
     const navigate = useNavigate()
+    const {initialiseLikedSongs} = useLikedSongs()
     let isFetchingClubs = false
     const fetchClubs = async () => {
         if(isFetchingClubs) return
@@ -50,10 +52,9 @@ const SelectClub = () => {
             
         }
     }
-    const {club, setClub} = useClub()
+    const {club, setClub, initialiseClubSongs} = useClub()
     const {user} = useAuth()
-    const {updateAddedSongs} = useClub()
-    const { updateSongs } = useAddedSongs()
+    const { updateUserSuggestedSongs } = useSuggestedSongs()
     useEffect(() => {
         fetchClubs()
     },[])
@@ -61,6 +62,8 @@ const SelectClub = () => {
         if(user && user.user_type === UserType.DJ && user.club){
             setClub(user.club)
             navigate(RoutesKeys.CLUB_SONG_LIST)
+        } else if(user&& user.user_type === UserType.USER){
+            initialiseLikedSongs()
         }
     },[user])
     const options = clubs.map((club) => {
@@ -86,7 +89,7 @@ const SelectClub = () => {
             }
         })
         if(Array.isArray(data)){
-            if(instanceOfSong(data[0])) updateAddedSongs(data)
+            if(instanceOfSong(data[0])) updateUserSuggestedSongs(data)
         } else {
             showSnackbar({
                 children:<span>Cound not fetch user suggested songs</span>,
@@ -95,28 +98,11 @@ const SelectClub = () => {
             return Promise.reject('Could not fetch user suggested songs')
         }
     }
-    const fetchClubSongs = async () => {
-        const data = await NetworkService.get({
-            url: API_ENDPOINTS.clubSongs,
-            data:{
-                clubId:club?.clubId,
-            }
-        })
-        if(Array.isArray(data)){
-            if(instanceOfSong(data[0])) updateSongs(data)
-        } else {
-            showSnackbar({
-                children:<span>Cound not fetch club songs</span>,
-                type:SnackbarTypes.ERROR
-            })
-            return Promise.reject('Cound not fetch club songs')
-        }
-    }
     const onNextClick = async() => {
         showLoader(null)
         try{
+            initialiseClubSongs()
             await fetchUserSuggestedSongs()
-            await fetchClubSongs()
             hideLoader()
             navigate(RoutesKeys.SELECT_SONGS)
         } catch (err){

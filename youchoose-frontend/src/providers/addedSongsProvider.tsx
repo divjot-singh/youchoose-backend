@@ -3,38 +3,38 @@ import Song from "../entities/song"
 
 
 export interface AddedSongsContextType{
-    songs:Song[],
-    updateSongs:(songs:Song[]) => void,
-    clearSongs:() => void,
+    userSuggestedSongs:Song[],
+    updateUserSuggestedSongs:(songs:Song[]) => void,
+    clearUserSuggestedSongs:() => void,
 }
 
-export const AddedSongsContext = createContext<AddedSongsContextType>({
-    songs:[],
-    updateSongs:(songs:Song[]) => {},
-    clearSongs:() => {}
+export const UserSuggestedSongsContext = createContext<AddedSongsContextType>({
+    userSuggestedSongs:[],
+    updateUserSuggestedSongs:(songs:Song[]) => {},
+    clearUserSuggestedSongs:() => {}
 })
 
-export const AddedSongsProvider = ({ children}:{children:JSX.Element | null}) => {
+export const UserSuggestedSongsProvider = ({ children}:{children:JSX.Element | null}) => {
 
-    const [addedSongs, setAddedSongs] = useState<Song[]>([])
+    const [userSuggestedSongs, setUserSuggestedSongs] = useState<Song[]>([])
 
-    const updateSongs = (songs:Song[]) => {
-        setAddedSongs(songs)
+    const updateUserSuggestedSongs = (songs:Song[]) => {
+        setUserSuggestedSongs(songs)
     }
 
-    const clearSongs = () => {
-        setAddedSongs([])
+    const clearUserSuggestedSongs = () => {
+        setUserSuggestedSongs([])
     }
 
     return (
-        <AddedSongsContext.Provider value={{
-            songs:addedSongs,
-            updateSongs,
-            clearSongs
+        <UserSuggestedSongsContext.Provider value={{
+            userSuggestedSongs:userSuggestedSongs,
+            updateUserSuggestedSongs: updateUserSuggestedSongs,
+            clearUserSuggestedSongs: clearUserSuggestedSongs
         }}>
             {children}
-        </AddedSongsContext.Provider>
+        </UserSuggestedSongsContext.Provider>
     )   
 }
 
-export const useAddedSongs = () => useContext(AddedSongsContext)
+export const useSuggestedSongs = () => useContext(UserSuggestedSongsContext)

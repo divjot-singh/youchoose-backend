@@ -28,3 +28,19 @@
         cursor: pointer;
     }
 }
+
+.like-component{
+    position: relative;
+    &.liked{
+        color: #ffffff;
+    }
+    .like-count{
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        line-height: 14px;
+        font-weight: bold;
+    }
+}

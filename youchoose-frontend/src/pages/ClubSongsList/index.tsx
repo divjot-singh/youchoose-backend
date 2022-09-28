@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import FloatingActionButton, { FabPosition } from '../../components/floating_action_button'
 import Header from '../../components/header'
 import { SnackbarTypes } from '../../components/snackbar'
-import SongItem from '../../components/songItem'
-import { instanceOfSong } from '../../entities/song'
+import SongItem, { SongItemPages } from '../../components/songItem'
+import Song, { instanceOfSong } from '../../entities/song'
 import { UserType } from '../../entities/user'
-import { useAddedSongs } from '../../providers/addedSongsProvider'
 import { useClub } from '../../providers/clubProvider'
 import { useCommonComponents } from '../../providers/commonComponentsProvider'
 import { useAuth } from '../../providers/userProvider'
@@ -16,11 +15,9 @@ import { RoutesKeys } from '../../utils/routes'
 import './index.scss'
 
 const ClubSongsList = () => {
-    const {club} = useClub()
+    const {club, clubSongsList, updateClubSongs} = useClub()
     const navigate = useNavigate()
-    const {songs} = useAddedSongs()
     const {user} = useAuth()
-    const {updateSongs} = useAddedSongs()
     const {showSnackbar, showLoader, hideLoader} = useCommonComponents()
     const fetchClubSongs = async () => {
         showLoader(null)
@@ -33,7 +30,7 @@ const ClubSongsList = () => {
             })
             hideLoader()
             if(Array.isArray(data)){
-                if(instanceOfSong(data[0])) updateSongs(data)
+                if(instanceOfSong(data[0])) updateClubSongs(data)
             } else {
                 showSnackbar({
                     children:<span>Cound not fetch club songs</span>,
@@ -58,14 +55,11 @@ const ClubSongsList = () => {
         }
     },[])
     const getSongs = () => {
-        if(songs.length){
-            return songs.map((song) => <SongItem song={song} key={song.videoId} canUserRemoveSong={!!user && user.user_type === UserType.DJ}/> )
+        if(clubSongsList.length){
+            return clubSongsList.map((song:Song) => <SongItem song={song} key={song.videoId} pageType={SongItemPages.SONGS_LIST} /> )
         } else{
             return <div className='empty-state'>No songs added yet</div>
         }
-    }
-    const showSuggestedSongs = () => {
-        navigate(RoutesKeys.SUGGESTED_SONG_LIST)
     }
     return (
         <>
@@ -73,7 +67,6 @@ const ClubSongsList = () => {
             <div className='songs-list-container container content'>
                 {getSongs()}
             </div>
-            {user?.user_type === UserType.DJ && <FloatingActionButton position={FabPosition.left} onClick={showSuggestedSongs}>Show suggested songs</FloatingActionButton>}
         </>
     )
 }

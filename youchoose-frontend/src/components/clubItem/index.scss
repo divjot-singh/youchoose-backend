@@ -9,6 +9,7 @@
     align-items: stretch;
     .club-info{
         flex: 1 1 calc(100% - 30px);
+        
         .club-info-item{
             margin-bottom: 16px;
             display: flex;
@@ -26,6 +27,13 @@
                 font-size: 14px;
                 line-height: 20px;
             }
+        }
+        .club-songs-page{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: red;
+            cursor: pointer;
         }
         .club-info-ctas{
             display: flex;

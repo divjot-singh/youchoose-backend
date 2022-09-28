@@ -7,7 +7,7 @@ import NetworkService from '../../services/networkService'
 import { API_ENDPOINTS } from '../../utils/apiEndpoints'
 import Song, { getSongFromMap } from '../../entities/song'
 import { SnackbarTypes } from '../../components/snackbar'
-import SongItem from '../../components/songItem'
+import SongItem, { SongItemPages } from '../../components/songItem'
 import './index.scss'
 import { FaSearch } from 'react-icons/fa'
 import FloatingActionButton, { FabPosition } from '../../components/floating_action_button'
@@ -65,7 +65,7 @@ const SelectSongs = () => {
 
     const getSongsResults = () => {
         if(debouncedValue.length && songs.length){
-            return songs.map((songItem) => <SongItem song={songItem} key={songItem.videoId} />)
+            return songs.map((songItem) => <SongItem song={songItem} key={songItem.videoId} pageType={SongItemPages.SONG_SEARCH} />)
         } else if(debouncedValue.length && !songs.length){
             return <p className='no-songs'>No songs found</p>
         }
@@ -78,7 +78,7 @@ const SelectSongs = () => {
                 <div className='song-list'>{getSongsResults()}</div>
             </div>
             <FloatingActionButton position={FabPosition.right} onClick={() => navigate(RoutesKeys.CLUB_SONG_LIST)}>SongsList</FloatingActionButton>
-            { user && user.user_type === UserType.USER ? <FloatingActionButton position={FabPosition.left} onClick={() => navigate(RoutesKeys.MY_SONGS)}>My songs</FloatingActionButton> : null}        
+            { user && user.user_type === UserType.USER && user.email ? <FloatingActionButton position={FabPosition.left} onClick={() => navigate(RoutesKeys.MY_SONGS)}>My songs</FloatingActionButton> : null}        
         </>
     )
 }

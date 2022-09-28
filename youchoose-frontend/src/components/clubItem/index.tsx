@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
-import { FaEdit, FaTrash } from 'react-icons/fa'
+import { FaChevronRight ,FaCaretRight, FaEdit, FaTrash } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 import Club, { instanceOfClub } from '../../entities/club'
+import { useClub } from '../../providers/clubProvider'
 import { useCommonComponents } from '../../providers/commonComponentsProvider'
 import NetworkService from '../../services/networkService'
 import { API_ENDPOINTS } from '../../utils/apiEndpoints'
+import { RoutesKeys } from '../../utils/routes'
 import { SnackbarTypes } from '../snackbar'
 import './index.scss'
 
@@ -11,6 +14,8 @@ const ClubItem = ({club, handleClubDelete, handleClubUpdate}:{club:Club | null, 
     const [isEditable, setIsEditable] = useState<boolean>(false)
     const [email, setEmail] = useState<string>(club?.email ?? '')
     const [name, setName] = useState<string>(club?.clubName ?? '')
+    const {club:currentClub,setClub, updateClubSongs} = useClub()
+    const navigate = useNavigate()
     const {showPopup,hidePopup, showSnackbar, showLoader, hideLoader} = useCommonComponents()
     const handleUpdate = async () => {
         try{
@@ -112,6 +117,15 @@ const ClubItem = ({club, handleClubDelete, handleClubUpdate}:{club:Club | null, 
             children:getPopupContent()
         })
     }
+    const handleSongsPageClick = () => {
+        if(club){
+            setClub(club)
+            if(currentClub?.clubId !== club.clubId){
+                updateClubSongs([])
+            }
+            navigate(RoutesKeys.CLUB_SONG_LIST)
+        }
+    }
     if(!club) return null
     return (
         <div className='club-item'>
@@ -124,6 +138,7 @@ const ClubItem = ({club, handleClubDelete, handleClubUpdate}:{club:Club | null, 
                     <label>Email:</label>
                     {isEditable ? <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /> : <span className='club-info-value'>{email}</span>}
                 </div>
+                {!isEditable ? <div className='club-songs-page' onClick={handleSongsPageClick}>Show Club songs <FaChevronRight color='red' size={20} /></div> : ''}
                 {getCtas()}
             </div>
             {!isEditable && <div className='icons'>

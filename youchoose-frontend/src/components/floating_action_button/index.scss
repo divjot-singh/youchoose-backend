@@ -39,3 +39,9 @@
         }
     }
 }
+
+@media screen and (max-height:600px) {
+    .floating-action-button{
+        display: none;
+    }
+}

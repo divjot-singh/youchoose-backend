@@ -7,7 +7,7 @@ import { InitialiseFirebaseApp } from './services/firebaseService';
 import { UserContextWrapper } from './providers/userProvider';
 import { CommonComponentsProvider } from './providers/commonComponentsProvider';
 import { ClubProvider } from './providers/clubProvider';
-import { AddedSongsProvider } from './providers/addedSongsProvider';
+import { UserSuggestedSongsProvider } from './providers/addedSongsProvider';
 import { LikedSongsProvider } from './providers/likedSongsProvider';
 
 
@@ -23,9 +23,9 @@ function App() {
       <UserContextWrapper isAppInitialised={appInitialised}>
         <LikedSongsProvider>
           <ClubProvider>
-            <AddedSongsProvider>
+            <UserSuggestedSongsProvider>
               <AppRouter />
-            </AddedSongsProvider>
+            </UserSuggestedSongsProvider>
           </ClubProvider>
         </LikedSongsProvider>
       </UserContextWrapper>

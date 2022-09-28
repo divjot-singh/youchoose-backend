@@ -4,8 +4,10 @@ import {Error as AppError, instanceOfError} from "../entities/error";
 import User, { instanceOfUser } from "../entities/user";
 import Authenticate, { AuthType } from "../services/authService";
 import { GetCurrentUser, Logout, SaveUserToLocalStorage } from "../services/firebaseService";
+import LocalStorageMethods from "../services/localstorageService";
 import NetworkService from "../services/networkService";
 import { API_ENDPOINTS } from "../utils/apiEndpoints";
+import { LocalStorageKeys } from "../utils/localstorageKeys";
 import { CommonComponentsContextValue, useCommonComponents } from "./commonComponentsProvider";
 
 interface UserContextWrapperProps{
@@ -29,7 +31,7 @@ export const UserContextWrapper = ({children,isAppInitialised}: UserContextWrapp
         commonComponents.showLoader(null)
         const currentUser:User | null | AppError= await GetCurrentUser()
         if(instanceOfUser(currentUser)){
-            const appUser: User | null | AppError = await NetworkService.post({url:API_ENDPOINTS.registerUser, data:currentUser})
+            const appUser: User | null | AppError = await NetworkService.post({url:API_ENDPOINTS.register, data:currentUser})
             if(instanceOfUser(appUser)){
                 SaveUserToLocalStorage(appUser)
                 setUser(appUser)
@@ -48,15 +50,16 @@ export const UserContextWrapper = ({children,isAppInitialised}: UserContextWrapp
     const authenticate = async (authType:AuthType, email?:string, password?:string, username?:string) => {
         commonComponents.showLoader(null)
         const result:User | null | AppError = await Authenticate(authType, email, password, username);
-        if(instanceOfUser(result)){
-            const appUser: User | null | AppError = await NetworkService.post({url:API_ENDPOINTS.registerUser, data:result})
-            console.log(appUser)
+        if(authType === AuthType.None && instanceOfUser(result)){
+            LocalStorageMethods.set(LocalStorageKeys.user_id, result.uid)
+            setUser(result)
+        } else if(instanceOfUser(result) && result.email){
+            const appUser: User | null | AppError = await NetworkService.post({url:API_ENDPOINTS.register, data:result})
             if(instanceOfUser(appUser)){
                 SaveUserToLocalStorage(appUser)
                 setUser(appUser)
             }
-        }
-        else if(instanceOfError(result)){
+        } else if(instanceOfError(result)){
             commonComponents.showSnackbar({children:<span>{result.message}</span>,type:SnackbarTypes.ERROR})
         }
         commonComponents.hideLoader()

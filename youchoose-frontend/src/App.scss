@@ -5,6 +5,11 @@ p{
     margin: 0;
 }
 
+
+.content{
+    margin: 0 auto;
+    max-width: 800px;
+}
 .container{
     padding: 16px;
     margin: 0 auto;
@@ -12,10 +17,6 @@ p{
     overflow: auto;
 }
 
-.content{
-    margin: 0 auto;
-    max-width: 800px;
-}
 
 input{
     padding: 8px 12px;

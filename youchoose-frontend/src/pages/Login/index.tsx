@@ -16,7 +16,7 @@ const Login = () => {
     const {initialiseLikedSongs} = useLikedSongs()
     const [email, setEmail] = useState<string>('')
     const [password, setPassword] = useState<string>('')
-    const {setClub} = useClub()
+    const {setClub, initialiseClubSongs} = useClub()
     const redirectToRouteIfAny = () => {
         const state:any = location.state || {}
         if(user?.user_type === UserType.USER){
@@ -24,6 +24,7 @@ const Login = () => {
             navigate(RoutesKeys.SELECT_CLUB)
         } else if(user?.user_type === UserType.DJ && user.club){
             setClub(user.club)
+            initialiseClubSongs()
             navigate(RoutesKeys.CLUB_SONG_LIST)
         }
         else if(user?.user_type === UserType.MODERATOR) {
@@ -36,6 +37,7 @@ const Login = () => {
         }
     }
     useEffect(() => {
+        console.log('login', user)
         if(user){
             redirectToRouteIfAny()
         }
@@ -58,7 +60,7 @@ const Login = () => {
         authenticate(AuthType.Email, email, password)
     }
     const continueWithoutSigning = () => {
-        navigate(RoutesKeys.SELECT_CLUB)
+        authenticate(AuthType.None)
     }
     return (
         <>

@@ -12,7 +12,8 @@ export interface LikedSongsContextType{
     likedSongs:Song[],
     addLikedSong:(song:Song) => void,
     removeLikedSong:(song:Song) => void,
-    initialiseLikedSongs:() => void
+    initialiseLikedSongs:(force?:boolean) => void,
+    onSignOut:() => void
 }
 
 
@@ -20,7 +21,8 @@ export const LikedSongsContext = createContext<LikedSongsContextType>({
     likedSongs:[],
     addLikedSong:(song:Song) => {},
     removeLikedSong:(song:Song) => {},
-    initialiseLikedSongs:() => {}
+    initialiseLikedSongs:(force?:boolean) => {},
+    onSignOut:() => {}
 })
 
 export const LikedSongsProvider = ({ children}:{children:JSX.Element | null}) => {
@@ -28,10 +30,12 @@ export const LikedSongsProvider = ({ children}:{children:JSX.Element | null}) =>
     const [isInitialised, setIsInitialised] = useState<boolean>(false)
     const {showSnackbar, hideLoader, showLoader} = useCommonComponents()
     const {user} = useAuth()
-    const initialiseLikedSongs = async () => {
+    const initialiseLikedSongs = async (force=false) => {
+        console.log(user)
         if(!user || !user.uid) return
-        if(isInitialised) return
+        if(isInitialised && !force) return
         try{
+            console.log(user)
             showLoader(null)
             setIsInitialised(true)
             let songs = await NetworkService.get({
@@ -67,12 +71,17 @@ export const LikedSongsProvider = ({ children}:{children:JSX.Element | null}) =>
     const removeLikedSong = (song:Song) => {
         setLikedSongs(likedSongs.filter((likedSong:Song) => likedSong.videoId !== song.videoId ))
     }
+    const onSignOut = () => {
+        setLikedSongs([])
+        setIsInitialised(false)
+    }
     return (
         <LikedSongsContext.Provider value={{
             likedSongs,
             addLikedSong,
             removeLikedSong,
-            initialiseLikedSongs
+            initialiseLikedSongs,
+            onSignOut
         }}>
             {children}
         </LikedSongsContext.Provider>
