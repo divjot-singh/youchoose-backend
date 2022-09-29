@@ -51,6 +51,8 @@ export const LikeSong = async (req:Request<any, any,LikeSongBody, any>, res:Resp
 export const FetchLikedSongs = async (req:Request<any, any,any, FetchLikedSongsBody>, res:Response, next:NextFunction) => {
     try{
         console.log('inside FetchLikedSongs')
+
+        
         const data:FetchLikedSongsBody = req.query
         const returnVal:Song[] | Error = await FirebaseService.fetchLikedSongs(data.userId)
         if(Array.isArray(returnVal)){
