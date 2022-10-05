@@ -54,9 +54,19 @@ router.post(API_ENDPOINTS.addClub, AddNewClub)
 router.post(API_ENDPOINTS.deleteMod, DeleteModerator)
 router.post(API_ENDPOINTS.likeSong, LikeSong)
 router.post(API_ENDPOINTS.unlikeSong, UnlikeSong)
-
+const printCurrentTime = () => {
+  let ts = Date.now();
+  let date_ob = new Date(ts);
+  let date = date_ob.getDate();
+  let month = date_ob.getMonth() + 1;
+  let year = date_ob.getFullYear();
+  let hours = date_ob.getHours()
+  let minutes = date_ob.getMinutes()
+  console.log(`current date-time on server ${date} - ${month} - ${year}, ${hours}:${minutes}`)
+}
 const cronJob:CronJob = new CronJob('59 7 * * *', RemoveSongsCron)
 if(!cronJob.running){
+  printCurrentTime()
   console.log('scheduling cron job to run at 7:59 every morning')
   cronJob.start()
 }
