@@ -62,12 +62,13 @@ const printCurrentTime = () => {
   let year = date_ob.getFullYear();
   let hours = date_ob.getHours()
   let minutes = date_ob.getMinutes()
-  console.log(`current date-time on server ${date} - ${month} - ${year}, ${hours}:${minutes}`)
+  const timezone = date_ob.getTimezoneOffset()
+  console.log(`current date-time on server ${date} - ${month} - ${year}, ${hours}:${minutes} ${timezone}`)
 }
-const cronJob:CronJob = new CronJob('59 7 * * *', RemoveSongsCron)
+const cronJob:CronJob = new CronJob('59 21 * * *', RemoveSongsCron)
 if(!cronJob.running){
   printCurrentTime()
-  console.log('scheduling cron job to run at 7:59 every morning')
+  console.log(`scheduling cron job to run at 21:59 every morning server time (7:50am Brisbane time)`)
   cronJob.start()
 }
 
