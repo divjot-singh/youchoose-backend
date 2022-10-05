@@ -36,6 +36,8 @@ const firebaseService_1 = __importDefault(require("./services/firebaseService"))
 const fetchClubsHandler_1 = require("./handlers/fetchClubsHandler");
 const suggestedSongsHandler_1 = require("./handlers/suggestedSongsHandler");
 const likeSongHandler_1 = require("./handlers/likeSongHandler");
+const cron_1 = require("cron");
+const removeSongCron_1 = require("./handlers/removeSongCron");
 const router = (0, express_1.Router)();
 const app = (0, express_1.default)();
 var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app'];
@@ -75,6 +77,11 @@ router.post(api_endpoints_1.default.addClub, fetchClubsHandler_1.AddNewClub);
 router.post(api_endpoints_1.default.deleteMod, registerUserHandler_1.DeleteModerator);
 router.post(api_endpoints_1.default.likeSong, likeSongHandler_1.LikeSong);
 router.post(api_endpoints_1.default.unlikeSong, likeSongHandler_1.UnlikeSong);
+const cronJob = new cron_1.CronJob('59 7 * * *', removeSongCron_1.RemoveSongsCron);
+if (!cronJob.running) {
+    console.log('scheduling cron job to run at 7:59 every morning');
+    cronJob.start();
+}
 app.listen(app.get('port'), () => {
     console.log(`Server started on port ${app.get('port')}`);
 });

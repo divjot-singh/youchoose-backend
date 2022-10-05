@@ -1,7 +1,7 @@
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { Auth, getAuth } from 'firebase-admin/auth';
-import { CreateError } from '../utils/createError';
+import { CreateError, instanceOfError } from '../utils/createError';
 import { Tables } from '../utils/tableEntities';
 import serviceAccount from './service-account.json';
 import User, { AuthorisedUser, getUserFromSnapshot, UserType } from '../entities/user';
@@ -402,6 +402,25 @@ class FirebaseService{
                 await doc.ref.update({
                     user_type:"user"
                 })
+            }
+        } catch(err){
+            return CreateError(err)
+        }
+    }
+    static async deleteAllClubSongs():Promise<void | Error>{
+        try{
+            console.log('inside deleteAllClubSongs')
+            const clubs:Club[] | Error = await FirebaseService.fetchClubs()
+            if(instanceOfError(clubs)){
+                return clubs
+            }
+            for(const club of clubs){
+                console.log(`deleting songs for club ${club.clubId}`)
+                let songList:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(club.clubId).collection(Tables.nested_club_suggested_song).get()                
+                for(const songListItem of songList.docs){
+                    await songListItem.ref.delete()
+                    console.log(`deleted song ${songListItem.id}`)
+                }
             }
         } catch(err){
             return CreateError(err)

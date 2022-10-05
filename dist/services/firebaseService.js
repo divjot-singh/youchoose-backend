@@ -498,6 +498,28 @@ class FirebaseService {
             }
         });
     }
+    static deleteAllClubSongs() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log('inside deleteAllClubSongs');
+                const clubs = yield FirebaseService.fetchClubs();
+                if ((0, createError_1.instanceOfError)(clubs)) {
+                    return clubs;
+                }
+                for (const club of clubs) {
+                    console.log(`deleting songs for club ${club.clubId}`);
+                    let songList = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(club.clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).get();
+                    for (const songListItem of songList.docs) {
+                        yield songListItem.ref.delete();
+                        console.log(`deleted song ${songListItem.id}`);
+                    }
+                }
+            }
+            catch (err) {
+                return (0, createError_1.CreateError)(err);
+            }
+        });
+    }
 }
 exports.default = FirebaseService;
 //# sourceMappingURL=firebaseService.js.map

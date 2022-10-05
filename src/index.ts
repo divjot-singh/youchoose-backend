@@ -8,6 +8,8 @@ import FirebaseService from './services/firebaseService';
 import {AddNewClub, DeleteClubHandler, FetchClubsHandler, UpdateClubHandler} from './handlers/fetchClubsHandler';
 import {AddSongToList, FetchClubSongs, FetchUserSuggestedSongs, RemoveSongFromList, RemoveUserSuggestedSong} from './handlers/suggestedSongsHandler';
 import { FetchLikedSongs, LikeSong, LikeUnlikeSong, UnlikeSong } from './handlers/likeSongHandler';
+import { CronJob } from 'cron';
+import { RemoveSongsCron } from './handlers/removeSongCron';
 
 
 const router = Router();
@@ -52,6 +54,12 @@ router.post(API_ENDPOINTS.addClub, AddNewClub)
 router.post(API_ENDPOINTS.deleteMod, DeleteModerator)
 router.post(API_ENDPOINTS.likeSong, LikeSong)
 router.post(API_ENDPOINTS.unlikeSong, UnlikeSong)
+
+const cronJob:CronJob = new CronJob('59 7 * * *', RemoveSongsCron)
+if(!cronJob.running){
+  console.log('scheduling cron job to run at 7:59 every morning')
+  cronJob.start()
+}
 
 app.listen(app.get('port'), () => {
     console.log(`Server started on port ${app.get('port')}`)
