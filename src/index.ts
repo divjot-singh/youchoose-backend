@@ -68,7 +68,7 @@ const printCurrentTime = () => {
 const cronJob:CronJob = new CronJob('59 21 * * *', RemoveSongsCron)
 if(!cronJob.running){
   printCurrentTime()
-  console.log(`scheduling cron job to run at 21:59 every morning server time (7:50am Brisbane time)`)
+  console.log(`scheduling cron job to run at 21:59 every day server time (7:59am Brisbane time)`)
   cronJob.start()
 }
 
