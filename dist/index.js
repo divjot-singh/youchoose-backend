@@ -88,10 +88,10 @@ const printCurrentTime = () => {
     const timezone = date_ob.getTimezoneOffset();
     console.log(`current date-time on server ${date} - ${month} - ${year}, ${hours}:${minutes} ${timezone}`);
 };
-const cronJob = new cron_1.CronJob('59 21 * * *', removeSongCron_1.RemoveSongsCron);
+const cronJob = new cron_1.CronJob('59 11 * * *', removeSongCron_1.RemoveSongsCron);
 if (!cronJob.running) {
     printCurrentTime();
-    console.log(`scheduling cron job to run at 21:59 every day server time (7:59am Brisbane time)`);
+    console.log(`scheduling cron job to run at 12:00pm every day server time (2pmm Italy time)`);
     cronJob.start();
 }
 app.listen(app.get('port'), () => {
