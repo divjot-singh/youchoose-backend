@@ -65,10 +65,10 @@ const printCurrentTime = () => {
   const timezone = date_ob.getTimezoneOffset()
   console.log(`current date-time on server ${date} - ${month} - ${year}, ${hours}:${minutes} ${timezone}`)
 }
-const cronJob:CronJob = new CronJob('59 21 * * *', RemoveSongsCron)
+const cronJob:CronJob = new CronJob('00 00 * * *', RemoveSongsCron)
 if(!cronJob.running){
   printCurrentTime()
-  console.log(`scheduling cron job to run at 21:59 every day server time (7:59am Brisbane time)`)
+  console.log(`scheduling cron job to run at 12:00am every day server time (2pmm Italy time)`)
   cronJob.start()
 }
 
