@@ -92,7 +92,8 @@ const cronJob = new cron_1.CronJob('59 11 * * *', removeSongCron_1.RemoveSongsCr
 if (!cronJob.running) {
     printCurrentTime();
     console.log(`scheduling cron job to run at 12:00pm every day server time (2pmm Italy time)`);
-    cronJob.start();
+    console.log('disabled cron job for the moment');
+    //cronJob.start()
 }
 app.listen(app.get('port'), () => {
     console.log(`Server started on port ${app.get('port')}`);

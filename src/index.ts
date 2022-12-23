@@ -69,7 +69,8 @@ const cronJob:CronJob = new CronJob('59 11 * * *', RemoveSongsCron)
 if(!cronJob.running){
   printCurrentTime()
   console.log(`scheduling cron job to run at 12:00pm every day server time (2pmm Italy time)`)
-  cronJob.start()
+  console.log('disabled cron job for the moment')
+  //cronJob.start()
 }
 
 app.listen(app.get('port'), () => {
