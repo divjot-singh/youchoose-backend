@@ -123,7 +123,7 @@ class FirebaseService{
             const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_songs).doc(clubId).collection(Tables.nested_club_suggested_song).get()
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
-                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0} = data || {}
+                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0, artistName = ''} = data || {}
                 console.log(`${title} likes`, likes)
                 return {
                     title,
@@ -132,7 +132,8 @@ class FirebaseService{
                     channelTitle,
                     channelId,
                     imageUrl,
-                    likes
+                    likes,
+                    artistName,
                 }
             })
             console.log(songs)
@@ -148,7 +149,7 @@ class FirebaseService{
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
                 const data = doc.data()
                 const song = data.song
-                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0} = song || {}
+                const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0, artistName = ''} = song || {}
                 return {
                     title,
                     etag,
@@ -157,7 +158,8 @@ class FirebaseService{
                     channelId,
                     imageUrl,
                     docId: doc.id,
-                    likes
+                    likes,
+                    artistName,
                 }
             })
             return songs;

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSongFromMap = void 0;
 const getSongFromMap = (data) => {
-    const { title = '', etag = '', videoId = '', channelId = '', channelTitle = '', imageUrl = '', likes = 0 } = data || {};
+    const { title = '', etag = '', videoId = '', channelId = '', channelTitle = '', imageUrl = '', likes = 0, artistName = '' } = data || {};
     const song = {
         title,
         channelId,
@@ -10,7 +10,8 @@ const getSongFromMap = (data) => {
         videoId,
         imageUrl,
         etag,
-        likes
+        likes,
+        artistName,
     };
     return song;
 };

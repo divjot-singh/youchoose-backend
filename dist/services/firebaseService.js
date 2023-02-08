@@ -158,7 +158,7 @@ class FirebaseService {
                 const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).get();
                 const songs = res.docs.map((doc) => {
                     const data = doc.data();
-                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0 } = data || {};
+                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0, artistName = '' } = data || {};
                     console.log(`${title} likes`, likes);
                     return {
                         title,
@@ -167,7 +167,8 @@ class FirebaseService {
                         channelTitle,
                         channelId,
                         imageUrl,
-                        likes
+                        likes,
+                        artistName,
                     };
                 });
                 console.log(songs);
@@ -186,7 +187,7 @@ class FirebaseService {
                 const songs = res.docs.map((doc) => {
                     const data = doc.data();
                     const song = data.song;
-                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0 } = song || {};
+                    const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0, artistName = '' } = song || {};
                     return {
                         title,
                         etag,
@@ -195,7 +196,8 @@ class FirebaseService {
                         channelId,
                         imageUrl,
                         docId: doc.id,
-                        likes
+                        likes,
+                        artistName,
                     };
                 });
                 return songs;
