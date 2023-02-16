@@ -14,7 +14,7 @@ import { RemoveSongsCron } from './handlers/removeSongCron';
 
 const router = Router();
 const app = express()
-var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app', 'http://youchoose.cc', 'https://youchoose.cc']
+var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app', 'http://youchoose.cc', 'https://youchoose.cc', 'http://www.youchoose.cc', 'https://www.youchoose.cc']
 const corsOptions = {
   origin: function (origin:string, callback:Function) {
     console.log(origin)

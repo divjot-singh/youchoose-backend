@@ -40,7 +40,7 @@ const cron_1 = require("cron");
 const removeSongCron_1 = require("./handlers/removeSongCron");
 const router = (0, express_1.Router)();
 const app = (0, express_1.default)();
-var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app', 'http://youchoose.cc', 'https://youchoose.cc'];
+var whitelist = ['http://localhost:3000', 'https://you-choose-9876.web.app', 'http://youchoose.cc', 'https://youchoose.cc', 'http://www.youchoose.cc', 'https://www.youchoose.cc'];
 const corsOptions = {
     origin: function (origin, callback) {
         console.log(origin);
