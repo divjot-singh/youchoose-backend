@@ -185,8 +185,7 @@ class FirebaseService {
                 console.log('inside fetchUserSuggestedClubSongs');
                 const res = yield FirebaseService.db.collection(tableEntities_1.Tables.club_suggested_songs).doc(clubId).collection(tableEntities_1.Tables.nested_club_suggested_song).doc(userId).collection(tableEntities_1.Tables.nestedUserClubSuggestedSong).get();
                 const songs = res.docs.map((doc) => {
-                    const data = doc.data();
-                    const song = data.song;
+                    const song = doc.data();
                     const { title = '', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes = 0, artistName = '' } = song || {};
                     return {
                         title,

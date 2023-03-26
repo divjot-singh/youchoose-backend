@@ -147,8 +147,7 @@ class FirebaseService{
             console.log('inside fetchUserSuggestedClubSongs')
             const res:FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.club_suggested_songs).doc(clubId).collection(Tables.nested_club_suggested_song).doc(userId).collection(Tables.nestedUserClubSuggestedSong).get()
             const songs:Song[] = res.docs.map((doc:FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
-                const data = doc.data()
-                const song = data.song
+                const song = doc.data()
                 const {title='', etag = '', videoId = '', channelTitle = '', channelId = '', imageUrl = '', likes=0, artistName = ''} = song || {}
                 return {
                     title,
