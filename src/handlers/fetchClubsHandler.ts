@@ -1,7 +1,6 @@
 import {  Request, Response, NextFunction} from 'express';
 import { instanceOfClub } from '../entities/clubs';
 import { AddClubHandlerBody, ClubHandlerBody, UpdateClubHandlerBody } from '../entities/postBodyEntities';
-import User, { instanceOfUser } from '../entities/user';
 import FirebaseService from '../services/firebaseService';
 import { CreateError } from '../utils/createError';
 
@@ -51,7 +50,7 @@ export const AddNewClub = async (req:Request<any, any, AddClubHandlerBody, any>,
     try{
         console.log('inside AddNewClub')
         const data:AddClubHandlerBody = req.body
-        const returnVal = await FirebaseService.addClub(data.clubName, data.email)
+        const returnVal = await FirebaseService.addClub(data.clubName, data.email, data.bannerUrl, data.logoUrl)
         if(instanceOfClub(returnVal)){
             res.status(200).send({success:true, data:returnVal})
         } else{

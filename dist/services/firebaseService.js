@@ -336,7 +336,9 @@ class FirebaseService {
                         return {
                             clubId: entry.id,
                             clubName: data.name,
-                            email: data.email || ''
+                            email: data.email || '',
+                            bannerUrl: data.bannerUrl,
+                            logoUrl: data.logoUrl,
                         };
                     });
                 }
@@ -390,7 +392,9 @@ class FirebaseService {
                 console.log('inside updateClub');
                 yield FirebaseService.db.collection(tableEntities_1.Tables.clubs).doc(club.clubId).update({
                     name: club.clubName,
-                    email: club.email
+                    email: club.email,
+                    bannerUrl: club.bannerUrl,
+                    logourl: club.logoUrl,
                 });
                 if (club.email !== oldEmail) {
                     if (oldEmail.length) {
@@ -428,18 +432,22 @@ class FirebaseService {
             }
         });
     }
-    static addClub(clubName, email) {
+    static addClub(clubName, email, bannerUrl, logoUrl) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log('inside addClub');
                 const data = yield FirebaseService.db.collection(tableEntities_1.Tables.clubs).add({
                     name: clubName,
-                    email
+                    email,
+                    bannerUrl,
+                    logoUrl,
                 });
                 const club = {
                     clubId: data.id,
                     clubName,
-                    email
+                    email,
+                    bannerUrl,
+                    logoUrl,
                 };
                 yield FirebaseService.addAuthorisedUser(club);
                 return club;

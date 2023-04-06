@@ -65,7 +65,7 @@ const AddNewClub = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     try {
         console.log('inside AddNewClub');
         const data = req.body;
-        const returnVal = yield firebaseService_1.default.addClub(data.clubName, data.email);
+        const returnVal = yield firebaseService_1.default.addClub(data.clubName, data.email, data.bannerUrl, data.logoUrl);
         if ((0, clubs_1.instanceOfClub)(returnVal)) {
             res.status(200).send({ success: true, data: returnVal });
         }

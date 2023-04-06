@@ -65,6 +65,8 @@ export interface UpdateClubHandlerBody{
 export interface AddClubHandlerBody{
     clubName:string;
     email:string;
+    bannerUrl:string;
+    logoUrl:string;
 }
 
 export interface AddModeratorHandlerBody{

@@ -270,7 +270,9 @@ class FirebaseService{
                 return {
                     clubId:entry.id,
                     clubName:data.name,
-                    email:data.email || ''
+                    email:data.email || '',
+                    bannerUrl:data.bannerUrl,
+                    logoUrl: data.logoUrl,
                 } as Club
             })
            }
@@ -315,7 +317,9 @@ class FirebaseService{
             console.log('inside updateClub')
             await FirebaseService.db.collection(Tables.clubs).doc(club.clubId).update({
                 name:club.clubName,
-                email:club.email
+                email:club.email,
+                bannerUrl:club.bannerUrl,
+                logourl:club.logoUrl,
             })
             if(club.email !== oldEmail){
                 if(oldEmail.length){
@@ -349,17 +353,21 @@ class FirebaseService{
             return CreateError(err)
         }
     }
-    static async addClub(clubName:string, email:string):Promise<Club | Error>{
+    static async addClub(clubName:string, email:string, bannerUrl:string, logoUrl:string):Promise<Club | Error>{
         try{
             console.log('inside addClub')
             const data:FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData> = await FirebaseService.db.collection(Tables.clubs).add({
                 name:clubName,
-                email
+                email,
+                bannerUrl,
+                logoUrl,
             })
             const club:Club = {
                 clubId:data.id,
                 clubName,
-                email
+                email,
+                bannerUrl,
+                logoUrl,
             }
             await FirebaseService.addAuthorisedUser(club)
             return club;

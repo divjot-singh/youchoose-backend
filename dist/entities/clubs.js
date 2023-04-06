@@ -10,11 +10,13 @@ exports.instanceOfClub = instanceOfClub;
 function getClubFromMap(data) {
     if (!data)
         return;
-    const { clubId = '', clubName = '', email = '' } = data || {};
+    const { clubId = '', clubName = '', email = '', bannerUrl = '', logoUrl = '' } = data || {};
     const club = {
         clubId,
         clubName,
-        email
+        email,
+        bannerUrl,
+        logoUrl,
     };
     return club;
 }
